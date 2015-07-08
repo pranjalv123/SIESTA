@@ -6,11 +6,18 @@
 
 class Quartet {
 public:
-  Quartet(Taxon a, Taxon b, Taxon c, Taxon d);
+  Quartet(TaxonSet& ts, Taxon a, Taxon b, Taxon c, Taxon d);
   Quartet(TaxonSet& ts) : ts(ts) {}
-  double parse(string& str);
+  double parse(char* str);
+  void parse_newick(char* str);
+  void parse_wqmc(char* str);
+
   string str();
   static void test();
+  int a() { return taxa[0]; }
+  int b() { return taxa[1]; }
+  int c() { return taxa[2]; }
+  int d() { return taxa[3]; }
 private:
   Taxon taxa[4];
   TaxonSet& ts;

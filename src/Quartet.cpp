@@ -1,9 +1,11 @@
 #include <sstream>
 #include <cassert>
-#include <ifstream>
+#include <cstring>
+#include <fstream>
 #include "Quartet.hpp"
 
-Quartet::Quartet(Taxon a, Taxon b, Taxon c, Taxon d)
+Quartet::Quartet(TaxonSet& ts, Taxon a, Taxon b, Taxon c, Taxon d) :
+  ts(ts)
 {
   taxa[0] = a;
   taxa[1] = b;
@@ -30,8 +32,7 @@ double Quartet::parse(char* str){
 void Quartet::parse_newick(char* c) {
   char* saveptr;
   int i = 0;
-  while(token=strtok_r(c, "(),", &saveptr)) {
-    cout << token << endl;
+  while(char* token=strtok_r(c, "(),", &saveptr)) {
     c = NULL;
     taxa[i] = ts[token];
     i++;
@@ -42,8 +43,7 @@ void Quartet::parse_newick(char* c) {
 void Quartet::parse_wqmc(char* c) {
   char* saveptr;
   int i = 0;
-  while(token=strtok_r(c, "|,", &saveptr)) {
-    cout << token << endl;
+  while(char* token=strtok_r(c, "|,", &saveptr)) {
     c = NULL;
     taxa[i] = ts[token];
     i++;
@@ -52,7 +52,7 @@ void Quartet::parse_wqmc(char* c) {
 
 string Quartet::str() {
   stringstream ss;
-  ss << "((" << ts[a] << ", " << ts[b] << "),(" << ts[c] << ", " << ts[d] << "))";
+  ss << "((" << ts[taxa[0]] << ", " << ts[taxa[1]] << "),(" << ts[taxa[2]] << ", " << ts[taxa[3]] << "))";
   return ss.str();
 }
 
@@ -63,24 +63,33 @@ QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile) :
   string s;
   double w;
   ifstream infile(quartetfile);
-
+  array_type::extent_gen extents;
+  array.resize(extents[ts.size()][ts.size()][ts.size()][ts.size()]);
+  
   while(!infile.eof()) {
     getline(infile, s);
-    w = q.parse(s);
-    array[q.taxa[0]][q.taxa[1]][q.taxa[2]][q.taxa[3]] = w;
-    array[q.taxa[1]][q.taxa[0]][q.taxa[2]][q.taxa[3]] = w;
-    array[q.taxa[0]][q.taxa[1]][q.taxa[3]][q.taxa[2]] = w;
-    array[q.taxa[1]][q.taxa[0]][q.taxa[3]][q.taxa[2]] = w;
+    if (s.size() == 0)
+      continue;
+    w = q.parse(&(s[0]));
+    array[q.a()][q.b()][q.c()][q.d()] = w;
+    array[q.b()][q.a()][q.c()][q.d()] = w;
+    array[q.a()][q.b()][q.d()][q.c()] = w;
+    array[q.b()][q.a()][q.d()][q.c()] = w;
+    array[q.c()][q.d()][q.a()][q.b()] = w;
+    array[q.c()][q.d()][q.b()][q.a()] = w;
+    array[q.d()][q.c()][q.a()][q.b()] = w;
+    array[q.d()][q.c()][q.b()][q.a()] = w;
+
   }  
 }
 
-double operator[](Taxon a, Taxon b, Taxon c, Taxon d) {
+double QuartetDict::operator()(Taxon a, Taxon b, Taxon c, Taxon d) {
   return array[a][b][c][d];
 }
 
 
-double operator[](Quartet& q) {
-  return array[q.taxa[0]][q.taxa[1]][q.taxa[2]][q.taxa[3]];
+double QuartetDict::operator()(Quartet& q) {
+  return array[q.a()][q.b()][q.c()][q.d()];
 }
 
 string QuartetDict::str() {
@@ -89,8 +98,12 @@ string QuartetDict::str() {
      for (int j = 0; j < i; j++) {
        for (int k = 0; k < j; k++) {
 	 for (int l = 0; l < k; l++) {
-	   Quartet q(i,j,k,l);
-	   ss << q.str() << ":" << (*this)(q) << endl;
+	   Quartet q1(ts,i,j,k,l);
+	   Quartet q2(ts,i,k,l,j);
+	   Quartet q3(ts,l,i,j,k);
+	   ss << q1.str() << ":" << (*this)(q1) << endl;
+	   ss << q2.str() << ":" << (*this)(q2) << endl;
+	   ss << q3.str() << ":" << (*this)(q3) << endl;
 	 }
        }
      } 
@@ -99,7 +112,12 @@ string QuartetDict::str() {
 }
 
 void QuartetDict::test() {
+  cout << "QuartetDict::test()" << endl;
   TaxonSet ts;
+  ts.add("1");
+  ts.add("2");
+  ts.add("3");
+  ts.add("4");
   QuartetDict qd(ts, "quartetdict_test");
   cout << qd.str();
 }
@@ -108,10 +126,11 @@ void QuartetDict::test() {
 void Quartet::test() {
   TaxonSet ts;
   Quartet q(ts);
-  q.parse("((1,2),(3,4))");
+  string c("((1,2),(3,4)):3.5");
+  q.parse(&c[0]);
+  cout << q.str() << endl;
   assert(q.taxa[0] == ts["1"]);
   assert(q.taxa[1] == ts["2"]);
-  assert(q.taxa[0] == ts["3"]);
-  assert(q.taxa[1] == ts["4"]);
-  cout << q.str();
+  assert(q.taxa[2] == ts["3"]);
+  assert(q.taxa[3] == ts["4"]);
 }
