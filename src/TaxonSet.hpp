@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <bitset>
 #include <map>
 #include <sstream>
 using namespace std;

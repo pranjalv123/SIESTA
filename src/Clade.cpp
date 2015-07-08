@@ -18,16 +18,16 @@ Clade::Clade(TaxonSet& tx_, string& str) :
 
     cout << token << endl;
     cladestr = NULL;
-    taxa.push_back(tx[string(&(token[0]))]);
+    taxa.set(tx[string(&(token[0]))]);
   }
-  sort(taxa.begin(), taxa.end());
 }
 
 string Clade::str() {
   stringstream ss;
   ss << '{';
-  for (int i : taxa) {
-    ss << i << ", ";
+  for (int i = 0; i < taxa.size(); i++) {
+    if (taxa[i]) 
+      ss << tx[i] << ", ";
   }
   ss << '}';
   return ss.str();
@@ -38,4 +38,11 @@ void Clade::test() {
   string str = string("{tx1, tx8, tx3, tx2, tx4}");
   cout << Clade(tx, str).str() << endl;
   cout << tx.str() << endl;
+}
+
+bool Clade::contains(const Clade& other) {
+  return (other.taxa & taxa) == other.taxa;
+}
+bool Clade::contains(const Taxon taxon) {
+  return taxa[taxon];
 }

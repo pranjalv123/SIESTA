@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <bitset>
 #include "TaxonSet.hpp"
 
 using namespace std;
@@ -18,7 +19,7 @@ public:
   static void test();
   
 private:
-  vector<int> taxa;
+  bitset<128> taxa;
   TaxonSet& tx;
 };
 
