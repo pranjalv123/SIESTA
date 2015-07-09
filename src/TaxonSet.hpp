@@ -14,6 +14,7 @@ class TaxonSet {
 private:
   vector<string> taxa;
   map<string, Taxon> index;
+  bitset<128> taxa_bs;
 public:
   Taxon operator[](const string& str) {
     return add(str);
@@ -31,9 +32,9 @@ public:
     int i = taxa.size();
     taxa.push_back(str);
     index[str] = i;
+    taxa_bs.set(i);
     return i;
-  }
-
+  }  
   string str() {
     stringstream ss;
     for (int i = 0; i < taxa.size(); i++) {
