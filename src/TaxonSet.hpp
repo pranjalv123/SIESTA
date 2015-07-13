@@ -14,8 +14,8 @@ class TaxonSet {
 private:
   vector<string> taxa;
   map<string, Taxon> index;
-  bitset<128> taxa_bs;
 public:
+  bitset<128> taxa_bs;
   Taxon operator[](const string& str) {
     return add(str);
   }

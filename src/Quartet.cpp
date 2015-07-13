@@ -15,10 +15,16 @@ Quartet::Quartet(TaxonSet& ts, Taxon a, Taxon b, Taxon c, Taxon d) :
 
 double Quartet::parse(char* str){
   char* p = str;
-  while(*p && *p != ':'){ p++; }
+  while(*p && *p != ':' && *p != ';'){ p++; }
   assert(*p);
+  double weight;
+  if (*p == ';') {
+    weight = atof(p+2);
+  }
+  if (*p == ':') {
+    weight = atof(p+1);
+  }
   *p = '\0';
-  double weight = atof(p+1);
   
   if (str[0] == '(') {
     parse_newick(str);
@@ -26,6 +32,8 @@ double Quartet::parse(char* str){
     parse_wqmc(str);
   }
 
+  //  cout << this->str() << '\t' << weight << endl;
+  
   return weight;
 }
 
