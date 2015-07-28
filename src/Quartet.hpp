@@ -25,9 +25,11 @@ private:
 
 class QuartetDict {
 public:
-  QuartetDict(TaxonSet& ts, string quartetfile);
+  QuartetDict(TaxonSet& ts, string quartetfile, bool invert);
   double operator()(Taxon a, Taxon b, Taxon c, Taxon d);
   double operator()(Quartet& q);
+  void set(Taxon a, Taxon b, Taxon c, Taxon d, double value);
+  void increment(Taxon a, Taxon b, Taxon c, Taxon d);
   string str();
   static void test();
 private:

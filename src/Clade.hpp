@@ -15,19 +15,12 @@ using namespace std;
 
 class Clade {
 public:
-  Clade(TaxonSet& tx, string& str);
-  Clade(TaxonSet& tx, bitset<128> taxa);
-
-  Clade(TaxonSet& tx);
-  Clade(const Clade& other) :
-    taxa_list(other.taxa_list), taxa(other.taxa), tx(other.tx)
-  {}
-  Clade& operator=(const Clade& other) {
-    taxa_list = other.taxa_list;
-    taxa = other.taxa;
-    tx = other.tx;
-    return *this;
-  }
+  Clade(TaxonSet& ts, string& str);
+  Clade(TaxonSet& ts, clade_bitset taxa);
+  Clade(TaxonSet& ts);
+  Clade(const Clade& other);
+  
+  Clade& operator=(const Clade& other);
   
   string str() const;
   string newick_str(TripartitionScorer& scorer, vector<Clade>& clades);
@@ -35,7 +28,7 @@ public:
   bool contains(const Clade& other) const;
   bool contains(const Taxon taxon) const;
 
-  size_t size() { return taxa_list.size(); }
+  size_t size();
   
   static void test();
   
@@ -43,24 +36,17 @@ public:
   Clade complement() const;
   Clade minus(const Clade& other) const;
 
-  double score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<bitset<128> >& cladetaxa);
+  double score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset>& cladetaxa);
   
   unordered_set<Taxon> taxa_list;
-  bitset<128> taxa;
-private:
-  TaxonSet& tx;
+  clade_bitset taxa;
+
+  TaxonSet& ts;
 };
 
 struct Tripartition {
   Clade a1, a2, rest;
-  Tripartition(TaxonSet& tx, Clade& clade, Clade& subclade) :
-    a1(tx), a2(tx), rest(tx)
-  {
-    assert(clade.contains(subclade));
-    a1 = clade.minus(subclade);
-    a2 = subclade;
-    rest = clade.complement();
-  }
+  Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade);
 };
 
 

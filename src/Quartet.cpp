@@ -64,7 +64,7 @@ string Quartet::str() {
   return ss.str();
 }
 
-QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile) :
+QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile, bool invert) :
   ts(ts)
 {
   Quartet q(ts);
@@ -73,12 +73,20 @@ QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile) :
   ifstream infile(quartetfile);
   array_type::extent_gen extents;
   array.resize(extents[ts.size()][ts.size()][ts.size()][ts.size()]);
+  int i,j,k,l;
+  for (i = 0; i < ts.size(); i++)
+      for (j = 0; j < ts.size(); j++)
+	  for (k = 0; k < ts.size(); k++)
+	      for (l = 0; l < ts.size(); l++)
+		array[i][j][k][l] = 0;
   
   while(!infile.eof()) {
     getline(infile, s);
     if (s.size() == 0)
       continue;
     w = q.parse(&(s[0]));
+    if (invert)
+      w = -w;
     array[q.a()][q.b()][q.c()][q.d()] = w;
     array[q.b()][q.a()][q.c()][q.d()] = w;
     array[q.a()][q.b()][q.d()][q.c()] = w;
@@ -126,7 +134,7 @@ void QuartetDict::test() {
   ts.add("2");
   ts.add("3");
   ts.add("4");
-  QuartetDict qd(ts, "quartetdict_test");
+  QuartetDict qd(ts, "quartetdict_test", false);
   cout << qd.str();
 }
 

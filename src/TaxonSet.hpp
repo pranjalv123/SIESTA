@@ -9,13 +9,14 @@
 using namespace std;
 
 typedef int Taxon;
+typedef bitset<40> clade_bitset;
 
 class TaxonSet {
 private:
   vector<string> taxa;
   map<string, Taxon> index;
 public:
-  bitset<128> taxa_bs;
+  clade_bitset taxa_bs;
   Taxon operator[](const string& str) {
     return add(str);
   }

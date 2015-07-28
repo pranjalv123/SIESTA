@@ -9,15 +9,19 @@
 class TripartitionScorer {
 public:
   virtual double score(const Tripartition& t)=0;
-  double get_score(bitset<128>& clade);
-  void set_score(bitset<128>& clade, double score, Clade& a1, Clade& a2);
-  pair<Clade, Clade>& get_subclades(bitset<128>& clade, vector<Clade>& clades);
-  TripartitionScorer(TaxonSet& ts) : ts(ts) {}
+  double get_score(clade_bitset& clade);
+  void set_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2);
+  pair<clade_bitset, clade_bitset>& get_subclades(clade_bitset& clade, vector<Clade>& clades);
+  TripartitionScorer(TaxonSet& ts) : ts(ts) {
+    Clade ec(ts);
+    score_map[ec.taxa] = 0;
+    subclade_map[ec.taxa] = make_pair(ec.taxa, ec.taxa);
+  }
  
 private:
   TaxonSet& ts;
-  unordered_map <bitset<128>, double> score_map;
-  unordered_map <bitset<128>, pair<Clade, Clade> > subclade_map;
+  unordered_map <clade_bitset, double> score_map;
+  unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
 };
 
 class DPTripartitionScorer : public TripartitionScorer{
