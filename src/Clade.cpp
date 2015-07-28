@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
-#include "boost/boost/log/trivial.hpp"
+#include <boost/log/trivial.hpp>
 
 Clade::Clade(TaxonSet& ts_, string& str) :
   ts(ts_)

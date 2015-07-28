@@ -1,6 +1,6 @@
 #include "TripartitionScorer.hpp"
 
-#include "boost/boost/log/trivial.hpp"
+#include <boost/log/trivial.hpp>
 #include <limits>
 
 double DPTripartitionScorer::score(const Tripartition& t) {
