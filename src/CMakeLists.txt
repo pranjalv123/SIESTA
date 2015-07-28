@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (wASTRAL)
-add_definitions(-std=c++11 -DBOOST_LOG_DYN_LINK -g -O3)
+add_definitions(-std=c++11 -DBOOST_LOG_DYN_LINK -g -O3 -I ../src/boost/)
 file(GLOB SOURCES *.cpp)
 link_directories(/usr/local/lib)
 add_executable(wASTRAL ${SOURCES})
