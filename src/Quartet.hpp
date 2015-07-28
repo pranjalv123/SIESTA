@@ -1,7 +1,7 @@
 #ifndef QUARTET_HPP__
 #define QUARTET_HPP__
 #include <map>
-#include <boost/multi_array.hpp>
+#include "boost/boost/multi_array.hpp"
 #include "TaxonSet.hpp"
 
 class Quartet {

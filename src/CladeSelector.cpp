@@ -1,7 +1,7 @@
 #include "CladeSelector.hpp"
 #include <algorithm>
-#include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
+#include "boost/boost/format.hpp"
+#include "boost/boost/log/trivial.hpp"
 
 using boost::format;
 using boost::io::group;
