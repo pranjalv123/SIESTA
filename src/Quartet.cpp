@@ -4,6 +4,8 @@
 #include <fstream>
 #include "Quartet.hpp"
 
+using namespace std;
+
 Quartet::Quartet(TaxonSet& ts, Taxon a, Taxon b, Taxon c, Taxon d) :
   ts(ts)
 {
