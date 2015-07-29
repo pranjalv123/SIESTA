@@ -5,7 +5,7 @@
 #include "AstralInterface.hpp"
 
 #include <fstream>
-#include <google/profiler.h>
+#include <gperftools/profiler.h>
 #include <boost/program_options.hpp>
 
 #include <boost/log/core.hpp>
