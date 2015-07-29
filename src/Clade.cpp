@@ -49,7 +49,7 @@ Clade& Clade::operator=(const Clade& other) {
   return *this;
 }
 
-size_t Clade::size() { return taxa_list.size(); }
+size_t Clade::size() const { return taxa_list.size(); }
 
 
 

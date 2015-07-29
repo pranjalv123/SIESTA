@@ -7,7 +7,7 @@ using boost::format;
 using boost::io::group;
 
 void CladeSelector::run(bool invert) {
-  sort(clades.begin(), clades.end(), [](Clade& a, Clade& b){ return a.size() < b.size(); });
+  sort(clades.begin(), clades.end(), [](const Clade& a, const Clade& b){ return a.size() < b.size(); });
   
   for (Clade& clade : clades){
     clade.score(scorer, clades, cladetaxa);

@@ -28,7 +28,7 @@ public:
   bool contains(const Clade& other) const;
   bool contains(const Taxon taxon) const;
 
-  size_t size();
+  size_t size() const;
   
   static void test();
   
