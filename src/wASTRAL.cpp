@@ -6,6 +6,7 @@
 #include "AstralInterface.hpp"
 
 #include <fstream>
+#include <iostream>
 #include <gperftools/profiler.h>
 #include <boost/program_options.hpp>
 
