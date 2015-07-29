@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include "Quartet.hpp"
 
 using namespace std;
