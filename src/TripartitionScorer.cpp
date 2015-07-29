@@ -1,6 +1,5 @@
 #include "TripartitionScorer.hpp"
 
-#include <boost/log/trivial.hpp>
 #include <limits>
 
 double DPTripartitionScorer::score(const Tripartition& t) {
@@ -41,7 +40,7 @@ void TripartitionScorer::set_score(clade_bitset& clade, double score, clade_bits
 pair<clade_bitset, clade_bitset>& TripartitionScorer::get_subclades(clade_bitset& clade, vector<Clade>& clades) {
   if(subclade_map.count(clade) == 0){
     Clade c(ts, clade);
-    BOOST_LOG_TRIVIAL(error) << c.str() << " doesn't have subclades!" << endl;
+    //    BOOST_LOG_TRIVIAL(error) << c.str() << " doesn't have subclades!" << endl;
     //    c.score(*this, clades, cladetaxa);
     assert(false);
   }

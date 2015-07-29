@@ -9,10 +9,6 @@
 #include <gperftools/profiler.h>
 #include <boost/program_options.hpp>
 
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-
 
 namespace po = boost::program_options;
 
@@ -47,19 +43,19 @@ int main(int argc, char** argv) {
   po::notify(vm);
   
   if (vm.count("help") || argc == 1) {
-    BOOST_LOG_TRIVIAL(warning) << desc << "\n";
+    cout << desc << "\n";
     return 1;
   }
 
   if (!vm.count("verbose")) {
-    boost::log::core::get()->set_filter
-    (
-     boost::log::trivial::severity >= boost::log::trivial::info
-    );
+    // boost::log::core::get()->set_filter
+    // (
+    //  boost::log::trivial::severity >= boost::log::trivial::info
+    // );
   }
 
   if (vm.count("minimize") && vm.count("maximize")) {
-    BOOST_LOG_TRIVIAL(error) << "ERROR: --minimize and --maximize are not compatible." << endl;
+    cerr << "ERROR: --minimize and --maximize are not compatible." << endl;
     return 1;
   }
 
@@ -105,7 +101,6 @@ int main(int argc, char** argv) {
 
   clades.push_back(alltaxa);
   
-  BOOST_LOG_TRIVIAL(debug) << ts.str() << endl;
   
   int count=0;
   

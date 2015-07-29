@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
-#include <boost/log/trivial.hpp>
+
 
 Clade::Clade(TaxonSet& ts_, string& str) :
   ts(ts_)
@@ -98,7 +98,7 @@ string Clade::newick_str(TripartitionScorer& scorer, vector<Clade>& clades) {
   Clade c1(ts, subclades.first);
   Clade c2(ts, subclades.second);
   
-  BOOST_LOG_TRIVIAL(debug) << str() << c1.str() << c2.str() << (int)scorer.get_score(taxa) <<endl;
+  //  BOOST_LOG_TRIVIAL(debug) << str() << c1.str() << c2.str() << (int)scorer.get_score(taxa) <<endl;
 
   Tripartition tp(ts, *this, c1);
   
