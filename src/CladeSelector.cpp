@@ -14,7 +14,7 @@ void CladeSelector::run(bool invert) {
   double score = clades.back().score(scorer, clades, cladetaxa);
   if (invert) { score = -score; }
   //BOOST_LOG_TRIVIAL(info) << "Score: " << format("%f") % score;
-  cout << "Score: " << score;
+  cout << "Score: " << score << endl;
   newick_tree = clades.back().newick_str(scorer, clades) ;
   cout << "Tree: " << newick_tree << endl;
    
