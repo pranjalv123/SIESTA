@@ -7,8 +7,10 @@
 
 #include <fstream>
 #include <iostream>
-#include <gperftools/profiler.h>
 
+#ifdef ENABLE_PROFILING
+#include <gperftools/profiler.h>
+#endif
 
 void test() {
   Clade::test();
@@ -82,14 +84,21 @@ int main(int argc, char** argv) {
   DPTripartitionScorer scorer(ts, qd);
   
   CladeSelector cs(ts, scorer, clades, cladetaxa);
-  if (opt.profile)
+
+  if (opt.profile) {
+#ifdef ENABLE_PROFILING 
     ProfilerStart(opt.profilefile.c_str());
-  
+#else
+    cerr << "wASTRAL must be compiled with ENABLE_PROFILING=ON for profiling to work!" << endl;
+    return 1;
+#endif
+  }
   cs.run(opt.maximize);
-  
+
+#ifdef ENABLE_PROFILING
   if (opt.profile)
     ProfilerStop();
-  
+#endif
   if(opt.outputfile.size()) {
     ofstream outfile(opt.outputfile);
     outfile << cs.newick_tree << ';' << endl;
