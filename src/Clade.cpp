@@ -8,48 +8,44 @@
 
 
 Clade::Clade(TaxonSet& ts_, string& str) :
+  taxa(ts_.size()),
   ts(ts_)
 {
-  int i = 1;
-
   char* cladestr = &(str[1]);
   char* token;
   char* saveptr;
 
-  while(token = strtok_r(cladestr, ",} ", &saveptr)) {
+  while((token = strtok_r(cladestr, ",} ", &saveptr))) {
     cladestr = NULL;
     add(ts[string(&(token[0]))]);
   }
 }
 
 Clade::Clade(TaxonSet& ts_) :
+  taxa(ts_.size()),
   ts(ts_)
 {}
 
-Clade::Clade(const Clade& other) :
-  taxa_list(other.taxa_list),
-  taxa(other.taxa),
-  ts(other.ts) {}
-
-Clade::Clade(TaxonSet& ts_, clade_bitset taxa) :
-  ts(ts_),
-  taxa(taxa)
+Clade::Clade(TaxonSet& ts_, clade_bitset& taxa) :
+  taxa(taxa),
+  ts(ts_)
 {
-  for (int i = 0; i < ts.size(); i++) {
-    if (taxa[i]) {
-      taxa_list.insert(i);
-    }
-  }
 }
+
+Clade::Clade(const Clade& other) :
+  taxa(other.taxa),
+  ts(other.ts)
+{
+}
+
+
 
 Clade& Clade::operator=(const Clade& other) {
-  taxa_list = other.taxa_list;
-  taxa = other.taxa;
-  ts = other.ts;
-  return *this;
+   taxa = other.taxa;
+   ts = other.ts;
+   return *this;
 }
 
-size_t Clade::size() const { return taxa_list.size(); }
 
 
 
@@ -58,7 +54,7 @@ string Clade::str() const {
   stringstream ss;
   vector<string> strings;
 
-  for (Taxon i : taxa_list) {
+  for (Taxon i : *this) {
     strings.push_back(ts[i]);
   }
 
@@ -78,12 +74,15 @@ string Clade::newick_str(TripartitionScorer& scorer, vector<Clade>& clades) {
     return "";
   }
   if (size() == 1) {
-    return ts[*taxa_list.begin()];
+    return ts[*begin()];
   }
   if (size() == 2) {
     stringstream ss;
 
-    vector<Taxon> tv(taxa_list.begin(), taxa_list.end());
+    vector<Taxon> tv;
+    for (Taxon t : *this) {
+      tv.push_back(t);
+    }
     
     ss << "("<<ts[tv[0]] << "," << ts[tv[1]] << ")" ;    
     
@@ -107,34 +106,39 @@ string Clade::newick_str(TripartitionScorer& scorer, vector<Clade>& clades) {
 }
 
 void Clade::test() {
-  TaxonSet ts;
   string str = string("{tx1, tx8, tx3, tx2, tx4}");
+  TaxonSet ts(str);
   cout << Clade(ts, str).str() << endl;
   cout << ts.str() << endl;
 }
 
 bool Clade::contains(const Clade& other) const {
-  return (other.taxa & taxa) == other.taxa;
+  BitVectorFixed overlap(other.taxa & taxa);
+  return overlap == other.taxa;
 }
 bool Clade::contains(const Taxon taxon) const {
-  return taxa[taxon];
+  return taxa.get(taxon);
 }
 
 void Clade::add(const Taxon taxon) {
   taxa.set(taxon);
-  taxa_list.insert(taxon);
 }
 
 Clade Clade::complement() const {
-  Clade c(ts, ts.taxa_bs ^ taxa);
+  BitVectorFixed comp = ts.taxa_bs & (~taxa);
+  Clade c(ts, comp);
   return c;
 }
 
 Clade Clade::minus(const Clade& other) const {
-  Clade c(ts, other.taxa ^ taxa);
+  BitVectorFixed m(taxa & (~other.taxa));
+  Clade c(ts, m);
   return c;
 }
 
+int Clade::size() const {
+  return taxa.popcount();
+}
 
 double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset>& cladetaxa) {
   double value;
@@ -151,17 +155,17 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
   if (value != numeric_limits<double>::infinity()) {
     return value;
   }
-  clade_bitset sub1, sub2;
+  clade_bitset sub1(ts.size()), sub2(ts.size());
   
   if (size() == 2) {
     Clade c1(ts);
-    c1.add(*taxa_list.begin());
+    c1.add(*begin());
     Tripartition tp(ts, *this, c1);
     value = scorer.score(tp);
     scorer.set_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
   }
   else {
-    //    BOOST_LOG_TRIVIAL(debug) << "STARTING " << taxa_list.size() << endl << endl;
+
     for (Clade& subclade: clades) {
       if (!contains(subclade) || subclade.size() == 0 || subclade.size() >= size())
 	continue;
@@ -187,10 +191,23 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
 }
 
 Tripartition::Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade) :
-  a1(ts), a2(ts), rest(ts)
+  a1(clade.minus(subclade)),
+  a2(subclade),
+  rest(clade.complement())
 {
   assert(clade.contains(subclade));
-  a1 = clade.minus(subclade);
-  a2 = subclade;
-  rest = clade.complement();
+}
+
+void Clade::do_swap(Clade& other) {
+  std::swap(taxa, other.taxa);
+}
+
+
+namespace std
+{
+    template<>
+    void swap<Clade>(Clade& lhs, Clade& rhs)
+    {
+      lhs.do_swap(rhs);
+    }
 }

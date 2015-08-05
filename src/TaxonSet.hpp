@@ -6,39 +6,41 @@
 #include <bitset>
 #include <map>
 #include <sstream>
+#include <unordered_set>
+
+#include "BitVector.hpp"
 using namespace std;
 
 typedef int Taxon;
-typedef bitset<40> clade_bitset;
+typedef BitVectorFixed clade_bitset;
+class Clade;
 
 class TaxonSet {
 private:
+  unordered_set<string> taxa_set;
   vector<string> taxa;
   map<string, Taxon> index;
+  map<clade_bitset, Clade&> clade_map;
 public:
   clade_bitset taxa_bs;
+
+  TaxonSet(string str);
+
+  int resize_clades(string str);
+  
+  void add_clade_taxa(string str, unordered_set<string>& taxa_set);
+  
   Taxon operator[](const string& str) {
     return add(str);
   }
   const string& operator[](const Taxon i) const {
     return taxa.at(i);
   }
-  int size() const {
-    return taxa.size();
-  }
-  Taxon add(const string& str) {
-    if (index.count(str)) {
-      return index[str];
-    }
-    int i = taxa.size();
-    taxa.push_back(str);
-    index[str] = i;
-    taxa_bs.set(i);
-    return i;
-  }  
+  size_t size() const;
+  Taxon add(const string& str);
   string str() {
     stringstream ss;
-    for (int i = 0; i < taxa.size(); i++) {
+    for (size_t i = 0; i < taxa.size(); i++) {
       ss << i << "\t" << taxa[i] << endl;
     }
     return ss.str();

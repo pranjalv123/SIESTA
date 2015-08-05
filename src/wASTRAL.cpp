@@ -19,9 +19,17 @@ void test() {
 }
 
 int main(int argc, char** argv) {
-  TaxonSet ts;
-
   Options opt(argc, argv);
+
+
+  if (opt.profile) {
+#ifdef ENABLE_PROFILING 
+    ProfilerStart(opt.profilefile.c_str());
+#else
+    cerr << "wASTRAL must be compiled with ENABLE_PROFILING=ON for profiling to work!" << endl;
+    return 1;
+#endif
+  }
   
   
   if (opt.help || argc == 1) {
@@ -33,66 +41,66 @@ int main(int argc, char** argv) {
     cerr << "ERROR: --minimize and --maximize are not compatible." << endl;
     return 1;
   }
+
+
+
   
   vector<Clade> clades;
+  TaxonSet* tsptr;
   unordered_set<clade_bitset > cladetaxa;
   
   if (opt.cladefile.size()) {
     ifstream cladeFile(opt.cladefile);
     string s;
+    tsptr = new TaxonSet(s);
     while(!cladeFile.eof()) {
       getline(cladeFile, s);
       if (s.size() == 0)
 	continue;
-      clades.emplace_back(ts, s);
-      cladetaxa.insert(clades.back().taxa);
+      clades.emplace_back(*tsptr, s);
+      cladetaxa.insert(clades.back().get_taxa());
     }    
   } 
   else if (opt.astralfile.size()) {
-   AstralInterface ai(opt.astralfile);
+    AstralInterface ai(opt.astralfile);
+
     string cladesstr;
     if (opt.exact) {
       cladesstr = ai.getClades_exact(opt.genetreesfile, opt.verbose);
     } else {
       cladesstr = ai.getClades(opt.genetreesfile, opt.verbose);
     }
+    tsptr = new TaxonSet(cladesstr);
     stringstream cladess(cladesstr);
     string s;
     while(!cladess.eof()) {
       getline(cladess, s);
       if (s.size() == 0)
 	continue;
-      clades.emplace_back(ts, s);
-      cladetaxa.insert(clades.back().taxa);
+      clades.emplace_back(*tsptr, s);
+      cladetaxa.insert(clades.back().get_taxa());
     }
   }
-
+  TaxonSet& ts = *tsptr;
   string quartetFile(opt.quartetsfile);
   
   Clade alltaxa(ts);
-  for (int i = 0; i < ts.size(); i++) {
+  for (size_t i = 0; i < ts.size(); i++) {
     alltaxa.add(i);
   }
 
   clades.push_back(alltaxa);
   
   
-  int count=0;
 
   QuartetDict qd(ts, quartetFile, opt.maximize);
 
-  DPTripartitionScorer scorer(ts, qd);
+  //DPTripartitionScorer scorer(ts, qd);
+  BryantSteelTripartitionScorer scorer(ts, qd, clades);
+
   
   CladeSelector cs(ts, scorer, clades, cladetaxa);
 
-  if (opt.profile) {
-#ifdef ENABLE_PROFILING 
-    ProfilerStart(opt.profilefile.c_str());
-#else
-    cerr << "wASTRAL must be compiled with ENABLE_PROFILING=ON for profiling to work!" << endl;
-    return 1;
-#endif
-  }
   cs.run(opt.maximize);
 
 #ifdef ENABLE_PROFILING

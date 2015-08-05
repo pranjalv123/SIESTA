@@ -3,10 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include <bitset>
 #include <unordered_set>
 #include <cassert>
 #include <unordered_set>
+#include <string.h>
 #include "TaxonSet.hpp"
 
 
@@ -14,11 +16,18 @@ class TripartitionScorer;
 using namespace std;
 
 class Clade {
+private:
+
+
 public:
+  clade_bitset taxa;
+  TaxonSet& ts;
+  
   Clade(TaxonSet& ts, string& str);
-  Clade(TaxonSet& ts, clade_bitset taxa);
+  Clade(TaxonSet& ts, clade_bitset& taxa);
   Clade(TaxonSet& ts);
   Clade(const Clade& other);
+  
   
   Clade& operator=(const Clade& other);
   
@@ -28,20 +37,27 @@ public:
   bool contains(const Clade& other) const;
   bool contains(const Taxon taxon) const;
 
-  size_t size() const;
-  
   static void test();
   
   void add(const Taxon taxon);
   Clade complement() const;
   Clade minus(const Clade& other) const;
 
-  double score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset>& cladetaxa);
+  int size() const;
+  const clade_bitset& get_taxa() const {return taxa;}
   
-  unordered_set<Taxon> taxa_list;
-  clade_bitset taxa;
+  double score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset>& cladetaxa);
 
-  TaxonSet& ts;
+  BVFIterator begin() const {
+    return taxa.begin();
+  }
+  
+  BVFIterator end() const {
+    return taxa.end();
+  }
+
+  void do_swap(Clade& other);
+  
 };
 
 struct Tripartition {

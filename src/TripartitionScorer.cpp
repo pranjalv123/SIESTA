@@ -1,23 +1,84 @@
 #include "TripartitionScorer.hpp"
 
 #include <limits>
+#include <gperftools/profiler.h>
+
+BryantSteelTripartitionScorer::BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades) :
+  TripartitionScorer(ts),
+  qd(qd),
+  test_scorer(ts, qd)
+{
+  for (Clade& clade : clades) {
+    vector<Taxon> nonmembers;
+    for(size_t i = 0; i < ts.size(); i++) {
+      if (!clade.contains(i))
+  	nonmembers.push_back(i);
+    }
+
+    map<pair<Taxon, Taxon>, double>& mp = W[clade.get_taxa()];
+
+    if (clade.size() < 2) {
+      continue;
+    }
+    
+    for (size_t i = 0; i < nonmembers.size(); i++) {
+      for (size_t j = i+1; j < nonmembers.size(); j++) {
+
+  	double d = 0;
+  	for (Taxon k : clade) {
+  	  for (Taxon l : clade) {
+  	    if (k > l)
+  	      d += qd(nonmembers[i],nonmembers[j],k,l);
+  	  }
+  	}
+	
+  	mp[make_pair(nonmembers[i], nonmembers[j])] = d;
+  	mp[make_pair(nonmembers[j], nonmembers[i])] = d;
+      }
+    }
+  }
+}
+
+double BryantSteelTripartitionScorer::score(const Tripartition& t) {
+
+  double val = 0;
+
+
+  for (Taxon c : t.a2) 
+    for (Taxon d : t.rest) 
+      val +=  W[t.a1.get_taxa()][make_pair(c,d)];
+    
+
+
+  for (Taxon c : t.a1) 
+    for (Taxon d : t.rest) 
+      val +=  W[t.a2.get_taxa()][make_pair(c,d)];
+  
+
+  for (Taxon c : t.a2) 
+    for (Taxon d : t.a2)
+      if (c > d)
+	val += W[t.a1.get_taxa()][make_pair(c, d)];
+
+  return val;
+}
 
 double DPTripartitionScorer::score(const Tripartition& t) {
   double val = 0;
   
-  for(Taxon a : t.a1.taxa_list) 
-    for (Taxon b: t.a2.taxa_list) 
-      for (Taxon c : t.rest.taxa_list) 
-	for (Taxon d : t.rest.taxa_list) 
+  for(Taxon a : t.a1) 
+    for (Taxon b: t.a2) 
+      for (Taxon c : t.rest) 
+	for (Taxon d : t.rest) 
 	  if (c > d)
 	    val += qd(a,b,c,d);
 
 
-  for(Taxon a : t.a1.taxa_list) 
-    for (Taxon b: t.a1.taxa_list) 
+  for(Taxon a : t.a1) 
+    for (Taxon b: t.a1) 
       if (a > b) 
-	for (Taxon c : t.a2.taxa_list) 
-	  for (Taxon d : t.a2.taxa_list) 
+	for (Taxon c : t.a2) 
+	  for (Taxon d : t.a2) 
 	    if (c > d)
 	      val -= qd(a,b,c,d);
   return val;

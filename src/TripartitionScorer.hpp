@@ -6,6 +6,17 @@
 #include "Clade.hpp"
 #include "Quartet.hpp"
 
+using namespace std;
+
+
+namespace std {
+  template <typename T, typename U> struct hash<pair<T,U> > {
+    size_t operator()(pair<T, U> x) {
+      return hash<T>()(x.first) ^ hash<U>()(x.second);
+    }
+  };
+};
+  
 class TripartitionScorer {
 public:
   virtual double score(const Tripartition& t)=0;
@@ -14,8 +25,8 @@ public:
   pair<clade_bitset, clade_bitset>& get_subclades(clade_bitset& clade, vector<Clade>& clades);
   TripartitionScorer(TaxonSet& ts) : ts(ts) {
     Clade ec(ts);
-    score_map[ec.taxa] = 0;
-    subclade_map[ec.taxa] = make_pair(ec.taxa, ec.taxa);
+    score_map[ec.get_taxa()] = 0;
+    subclade_map.emplace(ec.get_taxa(), make_pair(ec.get_taxa(), ec.get_taxa()));
   }
  
 private:
@@ -30,6 +41,16 @@ public:
   virtual double score(const Tripartition& t);
 private:
   QuartetDict& qd;
+};
+
+class BryantSteelTripartitionScorer : public TripartitionScorer{
+public:
+  BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades);
+  virtual double score(const Tripartition& t);
+private:
+  unordered_map<clade_bitset, map<pair<Taxon, Taxon>, double> >  W;
+  QuartetDict& qd;
+  DPTripartitionScorer test_scorer;
 };
 
 #endif
