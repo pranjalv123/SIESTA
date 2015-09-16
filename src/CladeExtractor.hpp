@@ -7,7 +7,9 @@
 using namespace std;
 
 class CladeExtractor {
-  //  static vector<Clade> extract(TaxonSet& ts, string tree);
+public:
+  static unordered_set<Clade> extract(TaxonSet& ts, const string& tree, unordered_set<Taxon>& tree_taxa);
+  static void test();
 };
 
 #endif

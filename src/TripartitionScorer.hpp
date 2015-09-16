@@ -50,7 +50,15 @@ public:
 private:
   unordered_map<clade_bitset, map<pair<Taxon, Taxon>, double> >  W;
   QuartetDict& qd;
-  DPTripartitionScorer test_scorer;
 };
+
+
+// class RFTripartitionScorer : public TripartitionScorer {
+// public:
+//   RFTripartitionScorer(TaxonSet& ts, vector<string> trees);
+//   virtual double score (const Tripartition& t);
+// private:
+//   unordered_map<clade_bitset, int > clade_weights;
+// };
 
 #endif

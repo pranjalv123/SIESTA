@@ -30,6 +30,8 @@ public:
   
   
   Clade& operator=(const Clade& other);
+  bool operator==(const Clade& other) const;
+  
   
   string str() const;
   string newick_str(TripartitionScorer& scorer, vector<Clade>& clades);
@@ -57,8 +59,16 @@ public:
   }
 
   void do_swap(Clade& other);
-  
+  size_t hash() const { return taxa.hash(); }
 };
+
+namespace std {
+  template <> struct hash<Clade> {
+    size_t operator()(const Clade& bvf) const {
+      return bvf.hash();
+    }
+  };
+}
 
 struct Tripartition {
   Clade a1, a2, rest;

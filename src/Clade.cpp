@@ -46,6 +46,10 @@ Clade& Clade::operator=(const Clade& other) {
    return *this;
 }
 
+bool Clade::operator==(const Clade& other) const {
+   return taxa == other.taxa;
+}
+
 
 
 

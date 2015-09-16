@@ -1,4 +1,5 @@
 #include "Clade.hpp"
+#include "CladeExtractor.hpp"
 #include "Quartet.hpp"
 #include "CladeSelector.hpp"
 #include "TripartitionScorer.hpp"
@@ -13,6 +14,7 @@
 #endif
 
 void test() {
+  CladeExtractor::test();
   Clade::test();
   Quartet::test();
   QuartetDict::test();
@@ -37,6 +39,11 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  if (opt.test) {
+    test();
+    return 0;
+  }
+  
   if (opt.minimize && opt.maximize) {
     cerr << "ERROR: --minimize and --maximize are not compatible." << endl;
     return 1;
@@ -45,43 +52,35 @@ int main(int argc, char** argv) {
 
 
   
-  vector<Clade> clades;
-  TaxonSet* tsptr;
+  unordered_set<Clade> clade_set;
+
   unordered_set<clade_bitset > cladetaxa;
+
+  stringstream clade_stream;
   
   if (opt.cladefile.size()) {
     ifstream cladeFile(opt.cladefile);
-    string s;
-    tsptr = new TaxonSet(s);
-    while(!cladeFile.eof()) {
-      getline(cladeFile, s);
-      if (s.size() == 0)
-	continue;
-      clades.emplace_back(*tsptr, s);
-      cladetaxa.insert(clades.back().get_taxa());
-    }    
-  } 
-  else if (opt.astralfile.size()) {
-    AstralInterface ai(opt.astralfile);
-
-    string cladesstr;
+    clade_stream << cladeFile;
+  }
+  if (opt.astralfile.size()) {
+    AstralInterface ai(opt.astralfile);	
     if (opt.exact) {
-      cladesstr = ai.getClades_exact(opt.genetreesfile, opt.verbose);
+      clade_stream << ai.getClades_exact(opt.genetreesfile, opt.verbose);
     } else {
-      cladesstr = ai.getClades(opt.genetreesfile, opt.verbose);
-    }
-    tsptr = new TaxonSet(cladesstr);
-    stringstream cladess(cladesstr);
-    string s;
-    while(!cladess.eof()) {
-      getline(cladess, s);
-      if (s.size() == 0)
-	continue;
-      clades.emplace_back(*tsptr, s);
-      cladetaxa.insert(clades.back().get_taxa());
+      clade_stream << ai.getClades(opt.genetreesfile, opt.verbose);
     }
   }
-  TaxonSet& ts = *tsptr;
+
+  TaxonSet ts(clade_stream.str());
+
+  stringstream ss(clade_stream.str());
+  string s;
+  while (!ss.eof()) {
+    getline(ss, s);
+    Clade c(ts, s);
+    clade_set.insert(c);
+  }
+  
   string quartetFile(opt.quartetsfile);
   
   Clade alltaxa(ts);
@@ -89,9 +88,9 @@ int main(int argc, char** argv) {
     alltaxa.add(i);
   }
 
-  clades.push_back(alltaxa);
+  clade_set.insert(alltaxa);
   
-  
+  vector<Clade> clades(clade_set.begin(), clade_set.end());
 
   QuartetDict qd(ts, quartetFile, opt.maximize);
 

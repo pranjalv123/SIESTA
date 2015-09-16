@@ -1,12 +1,12 @@
 #include "TripartitionScorer.hpp"
+#include "CladeExtractor.hpp"
 
 #include <limits>
 #include <gperftools/profiler.h>
 
 BryantSteelTripartitionScorer::BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades) :
   TripartitionScorer(ts),
-  qd(qd),
-  test_scorer(ts, qd)
+  qd(qd)
 {
   for (Clade& clade : clades) {
     vector<Taxon> nonmembers;
@@ -84,6 +84,20 @@ double DPTripartitionScorer::score(const Tripartition& t) {
   return val;
 }
 
+
+// RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, vector<string> trees) :
+//   TripartitionScorer(ts)
+// {
+//   for (string& tree : trees) {
+//     unordered_set<Taxon> tree_taxa;
+//     unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
+//     for (const Clade& clade : clades) {
+      
+//     }
+//   }
+// }
+
+
 double TripartitionScorer::get_score(clade_bitset& clade) {
   if(score_map.count(clade)){
     return score_map[clade];
@@ -107,3 +121,4 @@ pair<clade_bitset, clade_bitset>& TripartitionScorer::get_subclades(clade_bitset
   }
   return subclade_map.at(clade);
 }
+

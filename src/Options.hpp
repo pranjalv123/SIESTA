@@ -18,6 +18,7 @@ public:
   bool profile;
   string profilefile;
   int help;
+  int test;
   
   Options(int argc, char** argv);
   
