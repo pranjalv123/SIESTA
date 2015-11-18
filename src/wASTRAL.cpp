@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
     cladetaxa.insert(c.taxa);
   }
   
-  string quartetFile(opt.quartetsfile);
+
   
   Clade alltaxa(ts);
   for (size_t i = 0; i < ts.size(); i++) {
@@ -94,7 +94,9 @@ int main(int argc, char** argv) {
   
   vector<Clade> clades(clade_set.begin(), clade_set.end());
 
-  QuartetDict qd(ts, quartetFile, opt.maximize);
+  //string quartetFile(opt.quartetsfile);
+  
+  //QuartetDict qd(ts, quartetFile, opt.maximize);
 
   //DPTripartitionScorer scorer(ts, qd);
   //BryantSteelTripartitionScorer scorer(ts, qd, clades);

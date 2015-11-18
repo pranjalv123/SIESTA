@@ -29,8 +29,9 @@ public:
     subclade_map.emplace(ec.get_taxa(), make_pair(ec.get_taxa(), ec.get_taxa()));
   }
  
-private:
+protected:
   TaxonSet& ts;
+private:
   unordered_map <clade_bitset, double> score_map;
   unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
 };
@@ -57,6 +58,7 @@ class RFTripartitionScorer : public TripartitionScorer {
 public:
   RFTripartitionScorer(TaxonSet& ts, string treesfile);
   RFTripartitionScorer(TaxonSet& ts, vector<string> trees);
+  void addSourceTree(string tree);
   virtual double score (const Tripartition& t);
   bool matches(const Tripartition& t, const Bipartition& bp);
 private:

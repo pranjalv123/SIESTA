@@ -93,31 +93,26 @@ RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, string treesfile) :
   string tree;
   ifstream file(treesfile);
   while(getline(file, tree)) {
-    unordered_set<Taxon> tree_taxa;
-    unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
-    unordered_set<Clade> clade_complements;
-    Clade tree_clade(ts, tree_taxa);
-    for (const Clade& clade : clades) {
-      Clade comp(tree_clade.minus(clade));
-      clade_weights[Bipartition(clade, comp)] += 1;
-    }    
+    addSourceTree(tree);
   }
-
-
 }
 
 RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, vector<string> trees) :
   TripartitionScorer(ts)
 {
   for (string& tree : trees) {
-    unordered_set<Taxon> tree_taxa;
-    unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
-    unordered_set<Clade> clade_complements;
-    Clade tree_clade(ts, tree_taxa);
-    for (const Clade& clade : clades) {
-      Clade comp(tree_clade.minus(clade));
-      clade_weights[Bipartition(clade, comp)] += 1;
-    }
+    addSourceTree(tree);
+  }
+}
+
+void RFTripartitionScorer::addSourceTree(string tree) {
+  unordered_set<Taxon> tree_taxa;
+  unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
+  unordered_set<Clade> clade_complements;
+  Clade tree_clade(ts, tree_taxa);
+  for (const Clade& clade : clades) {
+    Clade comp(tree_clade.minus(clade));
+    clade_weights[Bipartition(clade, comp)] -= 1;
   }
 }
 
