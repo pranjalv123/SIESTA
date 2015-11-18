@@ -53,12 +53,14 @@ private:
 };
 
 
-// class RFTripartitionScorer : public TripartitionScorer {
-// public:
-//   RFTripartitionScorer(TaxonSet& ts, vector<string> trees);
-//   virtual double score (const Tripartition& t);
-// private:
-//   unordered_map<clade_bitset, int > clade_weights;
-// };
+class RFTripartitionScorer : public TripartitionScorer {
+public:
+  RFTripartitionScorer(TaxonSet& ts, string treesfile);
+  RFTripartitionScorer(TaxonSet& ts, vector<string> trees);
+  virtual double score (const Tripartition& t);
+  bool matches(const Tripartition& t, const Bipartition& bp);
+private:
+  unordered_map<Bipartition, double > clade_weights;
+};
 
 #endif

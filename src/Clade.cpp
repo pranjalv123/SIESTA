@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
-
+#include <cmath>
 
 Clade::Clade(TaxonSet& ts_, string& str) :
   taxa(ts_.size()),
@@ -30,6 +30,15 @@ Clade::Clade(TaxonSet& ts_, clade_bitset& taxa) :
   taxa(taxa),
   ts(ts_)
 {
+}
+
+Clade::Clade(TaxonSet& ts_, unordered_set<Taxon>& taxa) :
+  taxa(ts_.size()),
+  ts(ts_)
+{
+  for (Taxon t : taxa) {
+    add(t);
+  }
 }
 
 Clade::Clade(const Clade& other) :
@@ -156,7 +165,7 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
   }
 
   value = scorer.get_score(taxa);
-  if (value != numeric_limits<double>::infinity()) {
+  if (!std::isinf(value)) {
     return value;
   }
   clade_bitset sub1(ts.size()), sub2(ts.size());
@@ -166,20 +175,23 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
     c1.add(*begin());
     Tripartition tp(ts, *this, c1);
     value = scorer.score(tp);
+
     scorer.set_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
   }
   else {
 
     for (Clade& subclade: clades) {
-      if (!contains(subclade) || subclade.size() == 0 || subclade.size() >= size())
+      if (subclade.size() >= size() || !contains(subclade) || subclade.size() == 0 )
 	continue;
+
       Tripartition tp(ts, *this, subclade);
 
       if (cladetaxa.count(tp.a1.taxa) == 0 || cladetaxa.count(tp.a2.taxa) == 0)
 	continue;
+
       
       double score = scorer.score(tp) + tp.a1.score(scorer, clades, cladetaxa) + tp.a2.score(scorer, clades, cladetaxa);
-      if (value == numeric_limits<double>::infinity() || (score < value) ) {
+      if (std::isinf(value) || (score < value) ) {
 	value = score;
 	sub1 = tp.a1.taxa;
 	sub2 = tp.a2.taxa;	
@@ -188,7 +200,6 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
     scorer.set_score(taxa, value, sub1, sub2);    
   }
   
-
   
   return value;
   

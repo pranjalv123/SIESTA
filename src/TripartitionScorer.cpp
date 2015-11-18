@@ -2,6 +2,7 @@
 #include "CladeExtractor.hpp"
 
 #include <limits>
+#include <fstream>
 #include <gperftools/profiler.h>
 
 BryantSteelTripartitionScorer::BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades) :
@@ -81,21 +82,73 @@ double DPTripartitionScorer::score(const Tripartition& t) {
 	  for (Taxon d : t.a2) 
 	    if (c > d)
 	      val -= qd(a,b,c,d);
+
   return val;
 }
 
 
-// RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, vector<string> trees) :
-//   TripartitionScorer(ts)
-// {
-//   for (string& tree : trees) {
-//     unordered_set<Taxon> tree_taxa;
-//     unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
-//     for (const Clade& clade : clades) {
-      
-//     }
-//   }
-// }
+RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, string treesfile) :
+  TripartitionScorer(ts)
+{
+  string tree;
+  ifstream file(treesfile);
+  while(getline(file, tree)) {
+    unordered_set<Taxon> tree_taxa;
+    unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
+    unordered_set<Clade> clade_complements;
+    Clade tree_clade(ts, tree_taxa);
+    for (const Clade& clade : clades) {
+      Clade comp(tree_clade.minus(clade));
+      clade_weights[Bipartition(clade, comp)] += 1;
+    }    
+  }
+
+
+}
+
+RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, vector<string> trees) :
+  TripartitionScorer(ts)
+{
+  for (string& tree : trees) {
+    unordered_set<Taxon> tree_taxa;
+    unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
+    unordered_set<Clade> clade_complements;
+    Clade tree_clade(ts, tree_taxa);
+    for (const Clade& clade : clades) {
+      Clade comp(tree_clade.minus(clade));
+      clade_weights[Bipartition(clade, comp)] += 1;
+    }
+  }
+}
+
+bool RFTripartitionScorer::matches(const Tripartition& t, const Bipartition& bp) {
+  if (t.a1.contains(bp.a1) && t.a1.complement().contains(bp.a2) && !t.rest.contains(bp.a2))
+    return true;
+
+  if (t.a1.contains(bp.a2) && t.a1.complement().contains(bp.a1) && !t.rest.contains(bp.a1))
+    return true;
+
+  if (t.a2.contains(bp.a1) && t.a2.complement().contains(bp.a2) && !t.rest.contains(bp.a2))
+    return true;
+
+  if (t.a2.contains(bp.a2) && t.a2.complement().contains(bp.a1) && !t.rest.contains(bp.a1))
+    return true;
+
+  return false;
+}
+
+double RFTripartitionScorer::score(const Tripartition& t) {
+  double weight = 0;
+  for (auto i: clade_weights) {
+    const Bipartition& bp = i.first;
+    double c_weight = i.second;
+    
+    if (matches(t, bp)) {
+      weight += c_weight;
+    }
+  }
+  return weight;
+}
 
 
 double TripartitionScorer::get_score(clade_bitset& clade) {

@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
   }
 
   if (opt.test) {
+    cout << "TESTING" << endl;
     test();
     return 0;
   }
@@ -79,6 +80,7 @@ int main(int argc, char** argv) {
     getline(ss, s);
     Clade c(ts, s);
     clade_set.insert(c);
+    cladetaxa.insert(c.taxa);
   }
   
   string quartetFile(opt.quartetsfile);
@@ -95,8 +97,11 @@ int main(int argc, char** argv) {
   QuartetDict qd(ts, quartetFile, opt.maximize);
 
   //DPTripartitionScorer scorer(ts, qd);
-  BryantSteelTripartitionScorer scorer(ts, qd, clades);
+  //BryantSteelTripartitionScorer scorer(ts, qd, clades);
 
+  RFTripartitionScorer scorer(ts, opt.genetreesfile);
+
+  
   
   CladeSelector cs(ts, scorer, clades, cladetaxa);
 

@@ -25,6 +25,7 @@ public:
   
   Clade(TaxonSet& ts, string& str);
   Clade(TaxonSet& ts, clade_bitset& taxa);
+  Clade(TaxonSet& ts, unordered_set<Taxon>& taxa);
   Clade(TaxonSet& ts);
   Clade(const Clade& other);
   
@@ -62,18 +63,36 @@ public:
   size_t hash() const { return taxa.hash(); }
 };
 
+struct Tripartition {
+  Clade a1, a2, rest;
+  Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade);
+};
+
+struct Bipartition {
+  Clade a1, a2;
+  Bipartition(const Clade& clade1, const Clade& clade2) :
+    a1(clade1),
+    a2(clade2)
+  {}
+  size_t hash() const { return a1.taxa.hash() ^ a2.taxa.hash(); }
+  bool operator==(const Bipartition& other) const {
+    return ((a1 == other.a1) && (a2 == other.a2)) || ((a2 == other.a1) && (a1 == other.a2));
+  }
+};
+
+
 namespace std {
   template <> struct hash<Clade> {
     size_t operator()(const Clade& bvf) const {
       return bvf.hash();
     }
   };
+    template <> struct hash<Bipartition> {
+    size_t operator()(const Bipartition& bp) const {
+      return bp.hash();
+    }
+  };
 }
-
-struct Tripartition {
-  Clade a1, a2, rest;
-  Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade);
-};
 
 
 #endif // CLADE_HPP__

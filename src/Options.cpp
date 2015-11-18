@@ -53,6 +53,7 @@ Options::Options(int argc, char** argv) {
   profile = false;
   maximize = false;
   minimize = false;
+  test = false;
   while ((opt = getopt_long(argc, argv, optstring.c_str(), long_options, &long_index)) != -1) {
     switch(opt) {
     case 'v': verbose = true;

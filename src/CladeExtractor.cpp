@@ -50,7 +50,7 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
 	string token(current, n_op - current);
 	Taxon taxon = ts[token];
 	tree_taxa.insert(taxon);
-	cout << "found " << token << endl;
+	//	cout << "found " << token << endl;
 	for (int a : active)
 	  clades.at(a).add(taxon);
 
@@ -64,7 +64,7 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
 	string token(current, n_cm - current);
 	Taxon taxon = ts[token];
 	tree_taxa.insert(taxon);
-	cout << "found " << token << endl;
+	//	cout << "found " << token << endl;
 	for (int a : active)
 	  clades.at(a).add(taxon);
       }
