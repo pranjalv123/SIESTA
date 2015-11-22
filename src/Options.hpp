@@ -1,28 +1,30 @@
 #ifndef OPTIONS_HPP__
 #define OPTIONS_HPP__
 #include <string>
+#include <vector>
+#include <map>
+#include <getopt.h>
 using namespace std;
 
 class Options {
 public:
-  int verbose;
-  string quartetsfile;
-  string cladefile;
-  string genetreesfile;
-  string astralfile;
-  int exact;
-  string outputfile;
-  int maximize;
-  int minimize;
-  string scoretree;
-  bool profile;
-  string profilefile;
-  int help;
-  int test;
+  static int help;
+
+  static int get(string opts, string* arg);
+  static int get(string opts) {
+    return get(opts, 0);
+  }
   
-  Options(int argc, char** argv);
+
+  static void init(int argc, char** argv);
+
+  static bool inited;
   
-  static string desc;
+private:
+  
+  static vector<string> argv;
+
+  static map<string, string> opts_map;
   
 };
 

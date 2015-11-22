@@ -1,4 +1,5 @@
 #include "CladeSelector.hpp"
+#include "Logger.hpp"
 #include <algorithm>
 #include <iostream>
 
@@ -10,6 +11,7 @@ void CladeSelector::run(bool invert) {
   sort(clades.begin(), clades.end(), [](const Clade& a, const Clade& b){ return a.size() < b.size(); });
   
   for (Clade& clade : clades){
+    DEBUG << clade.str() << endl;
     clade.score(scorer, clades, cladetaxa);
   }
   double score = clades.back().score(scorer, clades, cladetaxa);

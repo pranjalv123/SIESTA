@@ -1,9 +1,86 @@
 #include "CladeExtractor.hpp"
 #include "TaxonSet.hpp"
+#include "Logger.hpp"
 #include <vector>
 #include <string>
 #include <cstring>
 #include <cassert>
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include "Logger.hpp"
+#include "AstralInterface.hpp"
+
+unordered_set<Clade> CladeExtractor::cl_clades;
+unordered_set<clade_bitset> CladeExtractor::cl_cladetaxa;
+TaxonSet* CladeExtractor::ts;
+
+TaxonSet& CladeExtractor::get_taxonset() {
+  get_from_cl();
+  return *ts;
+}
+unordered_set<Clade>& CladeExtractor::get_clades() {
+  get_from_cl();
+  return cl_clades;
+}
+unordered_set<clade_bitset>& CladeExtractor::get_cladetaxa() {
+  get_from_cl();
+  return cl_cladetaxa;
+}
+
+
+void CladeExtractor::get_from_cl() {
+  if (cl_clades.size()) {
+    return;
+  }
+
+  PROGRESS << "Reading Clades" << endl;
+  
+  string genetreesfile;
+  Options::get("g genetrees", &genetreesfile); 
+  
+  stringstream clade_stream;
+
+  string cladefile;
+  
+  if (Options::get("X cladefile", &cladefile)) {
+     ifstream cladefilestream(cladefile);
+     clade_stream << cladefilestream;
+  }
+
+  string astralfile;
+  
+  if (Options::get("a astral", &astralfile)) {
+    AstralInterface ai(astralfile);
+    string genetreesfile;
+    Options::get("g genetrees", &genetreesfile);
+    if (Options::get("x exact", 0)) {
+      clade_stream << ai.getClades_exact(genetreesfile);
+    } else {
+      clade_stream << ai.getClades(genetreesfile);
+    }
+  }
+
+  ts = new TaxonSet(clade_stream.str());
+
+  stringstream ss(clade_stream.str());
+  string s;
+  while (!ss.eof()) {
+    getline(ss, s);
+    Clade c(*ts, s);
+    cl_clades.insert(c);
+    cl_cladetaxa.insert(c.taxa);
+  }
+
+  Clade alltaxa(*ts);
+  for (size_t i = 0; i < ts->size(); i++) {
+    alltaxa.add(i);
+  }
+
+  cl_clades.insert(alltaxa);  
+}
+
+
 
 unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c, unordered_set<Taxon>& tree_taxa) {
   string tree(tree_c);
@@ -37,7 +114,6 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
 	string token(current, n_cp - current);
 	Taxon taxon = ts[token];
 	tree_taxa.insert(taxon);
-	cout << "found " << token << endl;
 	for (int a : active) {
 	  clades.at(a).add(taxon);
 	}
@@ -50,7 +126,6 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
 	string token(current, n_op - current);
 	Taxon taxon = ts[token];
 	tree_taxa.insert(taxon);
-	//	cout << "found " << token << endl;
 	for (int a : active)
 	  clades.at(a).add(taxon);
 
@@ -64,7 +139,6 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
 	string token(current, n_cm - current);
 	Taxon taxon = ts[token];
 	tree_taxa.insert(taxon);
-	//	cout << "found " << token << endl;
 	for (int a : active)
 	  clades.at(a).add(taxon);
       }

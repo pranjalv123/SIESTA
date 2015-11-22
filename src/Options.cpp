@@ -1,79 +1,119 @@
 #include "Options.hpp"
-#include <getopt.h>
+#include "Logger.hpp"
+#include <cassert>
+#include <iostream>
+#include <iterator>
+#include <sstream>
 
-string Options::desc =
-  "Options for wASTRAL:\n\
-  -h [ --help ]          produce help message\n\
-  -q [ --quartets ] arg  Input quartet weight file\n\
-  -c [ --cladefile ] arg Input clades file\n\
-  -g [ --genetrees ] arg Input gene trees, will generate clades with ASTRAL.\n\
-                          The ASTRAL executable must be present in the current \n\
-                         directory as astral.jar, or it can be specified with \n\
-                         --astral/-a\n\
-  -a [ --astral ] arg    Path to ASTRAL .jar file\n\
-  -x [ --exact ] arg     Get exact solution\n\
-  -o [ --output ] arg    Output tree file\n\
-  --minimize             Minimize sum of quartet weights (default)\n\
-  --maximize             Maximize sum of quartet weights\n\
-  -s [ --score ] arg     Output the score of this tree\n\
-  -v [ --verbose ]       Verbose output (debugging)\n\
-  --profile              Enable profiling with pprof (debugging)\n\
-" ;
+bool Options::inited = false;
 
-Options::Options(int argc, char** argv) {
-  static struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
-    {"verbose", no_argument, 0, 'v'},
-    {"test", no_argument, &test, 1},
+vector<string> Options::argv;
+map<string, string> Options::opts_map;
 
-    
-    {"astral", required_argument, 0, 'a'},
-    {"exact", no_argument, 0, 'x'},
-    
-    {"quartets", required_argument, 0, 'q'},    
-    {"cladefile", required_argument, 0, 'c'},
-    {"genetrees", required_argument, 0, 'g'},
-    {"score", required_argument, 0, 's'},
-    {"output", required_argument, 0, 'o'},
-    
-    {"maximize", no_argument, &maximize, 1},
-    {"minimize", no_argument, &minimize, 1},
-    
-    {"profile", required_argument, 0, 'p'}
 
-  };
+enum option_type {SHORT, LONG, ARG, END, EMPTY};
 
-  string optstring(":hva:xq:c:g:s:o:p:");
+option_type get_option_type(string& arg) {
+  if (arg.size() == 0) return EMPTY;
+  if (arg[0] != '-') return ARG;
+  if (arg.size() == 1) {
+    cerr << "INVALID ARGUMENT " << arg << endl;
+    exit(1);
+  }
+  if (arg[1] == '-') {
+    if (arg.size() == 2) return END;
+    arg = string(arg, 2); //remove starting --
+    return LONG;
+  }
+  if (arg.size() > 2) {
+    cerr << "INVALID ARGUMENT " << arg << endl;
+    exit(1);
+  }
+  arg = string(arg, 1);
+  return SHORT;
+}
 
-  int opt = 0;
-  int long_index = 0;
-  verbose = false;
-  exact = false;
-  help = false;
-  profile = false;
-  maximize = false;
-  minimize = false;
-  test = false;
-  while ((opt = getopt_long(argc, argv, optstring.c_str(), long_options, &long_index)) != -1) {
-    switch(opt) {
-    case 'v': verbose = true;
+void Options::init(int argc_, char** argv_) {
+
+  for (int i = 1; i < argc_; i++) {
+    argv.push_back(string(argv_[i]));
+  }
+  
+  string last_option = "";
+  
+  for (string arg : argv) {
+    option_type opttype = get_option_type(arg);
+    switch(opttype) {
+    case SHORT:
+    case LONG:
+      if (last_option != "") {
+	opts_map[last_option] = "";
+      }
+      last_option = arg;
       break;
-    case 'q': quartetsfile = optarg;
+    case ARG:
+      if (last_option == ""){
+	cerr << "ARGUMENT WITHOUT OPTION: " << arg << endl;
+	exit(1);
+      }
+      opts_map[last_option] = arg;
+      last_option = "";
       break;
-    case 'c': cladefile = optarg;
-      break;
-    case 'g': genetreesfile = optarg;
-      break;
-    case 'a': astralfile = optarg;
-      break;
-    case 'x': exact = true;
-      break;
-    case 'o': outputfile = optarg;
-      break;
-    case 'h': help = true;
-      break;
-    case 'p': profilefile = optarg; profile = true;
-      break;
+    case END:
+      return;
+    }
+
+  }
+
+  for (auto& kv : opts_map) {
+    DEBUG << kv.first << " = " << kv.second << endl;
+  }
+  
+  inited = true;
+}
+
+
+int Options::get(string opts, string* arg) {
+  assert(inited);
+
+  stringstream ss(opts);
+  istream_iterator<std::string> begin(ss);
+  istream_iterator<std::string> end;
+  vector<string> vopts(begin, end);
+  
+  for (auto& opt : vopts) {
+    if (opts_map.count(opt)) {
+      if (arg)
+	*arg = opts_map[opt];
+      return 1;
     }
   }
+  return 0;
+  
+  // opterr = 0;
+  
+  // struct option opts[] = {{ longopt.c_str(), optional_argument, 0, 0},
+  // 			  { 0, 0, 0, 0}
+  // };
+  // int c;
+  // int option_index;
+  // string optstring = "-:";
+  // if (shortopt) {
+  //   if (arg)
+  //     optstring = ":" + string(&shortopt, 1) + ":";
+  //   else
+  //     optstring = ":" + string(&shortopt, 1) ;
+  // }
+  // while ((c = getopt_long(argc, argv, optstring.c_str(), &(opts[0]), &option_index)) != -1) {
+  //   if (c == shortopt || c == 0 ) {
+  //     if (arg && (size_t)optarg)
+  // 	*arg = string(optarg);
+  //     optind = 1;
+  //     return 1;
+  //     cout << shortopt << " " << longopt << " " << arg << endl;
+  //   }
+  // }
+  // optind = 1;
+  // return 0;  
 }
+

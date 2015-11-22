@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include "Quartet.hpp"
+#include "Options.hpp"
+#include "Logger.hpp"
 
 using namespace std;
 
@@ -20,7 +22,7 @@ double Quartet::parse(char* str){
   char* p = str;
   while(*p && *p != ':' && *p != ';'){ p++; }
   assert(*p);
-  double weight;
+  double weight = 1;
   if (*p == ';') {
     weight = atof(p+2);
   }
@@ -67,7 +69,7 @@ string Quartet::str() {
   return ss.str();
 }
 
-QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile, bool invert) :
+QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile) :
   ts(ts)
 {
   Quartet q(ts);
@@ -75,8 +77,9 @@ QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile, bool invert) :
   double w;
   ifstream infile(quartetfile);
   array_type::extent_gen extents;
+  DEBUG << "Making quartet dict with size " << ts.size() << endl;
   array.resize(extents[ts.size()][ts.size()][ts.size()][ts.size()]);
-  int i,j,k,l;
+  size_t i,j,k,l;
   for (i = 0; i < ts.size(); i++)
       for (j = 0; j < ts.size(); j++)
 	  for (k = 0; k < ts.size(); k++)
@@ -88,8 +91,6 @@ QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile, bool invert) :
     if (s.size() == 0)
       continue;
     w = q.parse(&(s[0]));
-    if (invert)
-      w = -w;
     array[q.a()][q.b()][q.c()][q.d()] = w;
     array[q.b()][q.a()][q.c()][q.d()] = w;
     array[q.a()][q.b()][q.d()][q.c()] = w;
@@ -113,10 +114,11 @@ double QuartetDict::operator()(Quartet& q) {
 
 string QuartetDict::str() {
   stringstream ss;
-  for (int i = 0; i < ts.size(); i++) {
-     for (int j = 0; j < i; j++) {
-       for (int k = 0; k < j; k++) {
-	 for (int l = 0; l < k; l++) {
+  size_t i,j,k,l;
+  for (i = 0; i < ts.size(); i++) {
+     for (j = 0; j < i; j++) {
+       for (k = 0; k < j; k++) {
+	 for (l = 0; l < k; l++) {
 	   Quartet q1(ts,i,j,k,l);
 	   Quartet q2(ts,i,k,l,j);
 	   Quartet q3(ts,l,i,j,k);
@@ -133,7 +135,7 @@ string QuartetDict::str() {
 void QuartetDict::test() {
   cout << "QuartetDict::test()" << endl;
   TaxonSet ts("{1,2,3,4}");
-  QuartetDict qd(ts, "quartetdict_test", false);
+  QuartetDict qd(ts, "quartetdict_test");
   cout << qd.str();
 }
 
@@ -148,4 +150,18 @@ void Quartet::test() {
   // assert(q.taxa[1] == ts["2"]);
   // assert(q.taxa[2] == ts["3"]);
   // assert(q.taxa[3] == ts["4"]);
+}
+
+QuartetDict* QuartetDict::cl_qd = 0;
+
+QuartetDict* QuartetDict::cl(TaxonSet& ts) {
+  if (cl_qd) {
+    DEBUG << "Returning existing quartet dict" << endl;
+    return cl_qd;
+  }
+  string quartetFile;
+  Options::get("q quartets", &quartetFile);
+  DEBUG << "Making quartet dict from " << quartetFile << endl;
+  cl_qd = new QuartetDict(ts, quartetFile);
+  return cl_qd;
 }

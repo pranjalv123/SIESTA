@@ -3,6 +3,7 @@
 
 
 #include <unordered_map>
+#include <map>
 #include "Clade.hpp"
 #include "Quartet.hpp"
 
@@ -36,9 +37,46 @@ private:
   unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
 };
 
+
+template <typename T> TripartitionScorer* createT(TaxonSet& ts) { return new T(ts); }
+
+struct TripartitionScorerFactory {
+  typedef map<string, TripartitionScorer*(*)(TaxonSet& ts)> map_type;
+
+  static TripartitionScorer * createInstance(string const& s, TaxonSet& ts) {
+    map_type::iterator it = getMap()->find(s);
+    if(it == getMap()->end())
+      return 0;
+    return it->second(ts);      
+  }
+ protected:
+  static map_type* getMap() {
+    if (!mymap) { mymap = new map_type; }
+    return mymap;
+  }
+ private:
+  static map_type *mymap;
+};
+
+
+template<typename T>
+struct DerivedTPScorer : TripartitionScorerFactory {
+  DerivedTPScorer(string const& s) {
+    getMap() -> insert(make_pair(s, &createT<T>));
+  }
+};
+
+#define DEC_SCORER(NAME)			\
+    static DerivedTPScorer<NAME> reg
+
+#define DEF_SCORER(NAME) \
+    DerivedTPScorer<NAME> NAME::reg(#NAME)
+
+
 class DPTripartitionScorer : public TripartitionScorer{
 public:
-  DPTripartitionScorer(TaxonSet& ts, QuartetDict& qd) : TripartitionScorer(ts), qd(qd) {}
+  DEC_SCORER(DPTripartitionScorer);
+  DPTripartitionScorer(TaxonSet& ts);
   virtual double score(const Tripartition& t);
 private:
   QuartetDict& qd;
@@ -46,23 +84,25 @@ private:
 
 class BryantSteelTripartitionScorer : public TripartitionScorer{
 public:
-  BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades);
+  DEC_SCORER(BryantSteelTripartitionScorer);
+  BryantSteelTripartitionScorer(TaxonSet& ts);
   virtual double score(const Tripartition& t);
 private:
   unordered_map<clade_bitset, map<pair<Taxon, Taxon>, double> >  W;
-  QuartetDict& qd;
+  QuartetDict qd;
 };
 
 
 class RFTripartitionScorer : public TripartitionScorer {
 public:
-  RFTripartitionScorer(TaxonSet& ts, string treesfile);
-  RFTripartitionScorer(TaxonSet& ts, vector<string> trees);
+  DEC_SCORER(RFTripartitionScorer);
+  RFTripartitionScorer(TaxonSet& ts);
   void addSourceTree(string tree);
   virtual double score (const Tripartition& t);
   bool matches(const Tripartition& t, const Bipartition& bp);
 private:
   unordered_map<Bipartition, double > clade_weights;
 };
+
 
 #endif

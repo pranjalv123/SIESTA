@@ -1,15 +1,24 @@
 #include "TripartitionScorer.hpp"
 #include "CladeExtractor.hpp"
+#include "Logger.hpp"
 
 #include <limits>
 #include <fstream>
+#include <cmath>
 #include <gperftools/profiler.h>
 
-BryantSteelTripartitionScorer::BryantSteelTripartitionScorer(TaxonSet& ts, QuartetDict& qd, vector<Clade>& clades) :
+DEF_SCORER(DPTripartitionScorer);
+DEF_SCORER(BryantSteelTripartitionScorer);
+DEF_SCORER(RFTripartitionScorer);
+
+TripartitionScorerFactory::map_type* TripartitionScorerFactory::mymap;
+
+BryantSteelTripartitionScorer::BryantSteelTripartitionScorer(TaxonSet& ts) :
   TripartitionScorer(ts),
-  qd(qd)
+  qd(*QuartetDict::cl(ts))
 {
-  for (Clade& clade : clades) {
+  unordered_set<Clade>& clades = CladeExtractor::get_clades();
+  for (const Clade& clade : clades) {
     vector<Taxon> nonmembers;
     for(size_t i = 0; i < ts.size(); i++) {
       if (!clade.contains(i))
@@ -64,6 +73,11 @@ double BryantSteelTripartitionScorer::score(const Tripartition& t) {
   return val;
 }
 
+DPTripartitionScorer::DPTripartitionScorer(TaxonSet& ts) :
+  TripartitionScorer(ts),
+  qd(*QuartetDict::cl(ts)) {}
+
+
 double DPTripartitionScorer::score(const Tripartition& t) {
   double val = 0;
   
@@ -87,20 +101,14 @@ double DPTripartitionScorer::score(const Tripartition& t) {
 }
 
 
-RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, string treesfile) :
+RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts) :
   TripartitionScorer(ts)
 {
+  string treesfile;
+  Options::get("g genetrees", &treesfile);
   string tree;
   ifstream file(treesfile);
   while(getline(file, tree)) {
-    addSourceTree(tree);
-  }
-}
-
-RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts, vector<string> trees) :
-  TripartitionScorer(ts)
-{
-  for (string& tree : trees) {
     addSourceTree(tree);
   }
 }
@@ -112,7 +120,7 @@ void RFTripartitionScorer::addSourceTree(string tree) {
   Clade tree_clade(ts, tree_taxa);
   for (const Clade& clade : clades) {
     Clade comp(tree_clade.minus(clade));
-    clade_weights[Bipartition(clade, comp)] -= 1;
+    clade_weights[Bipartition(clade, comp)] += 1;
   }
 }
 
@@ -150,12 +158,11 @@ double TripartitionScorer::get_score(clade_bitset& clade) {
   if(score_map.count(clade)){
     return score_map[clade];
   }
-  return numeric_limits<double>::infinity();
+  return nan("");
 }
 
 void TripartitionScorer::set_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2) {
   score_map[clade] = score;
-  //  BOOST_LOG_TRIVIAL(debug) << "SAVING" << clade << "\t" << (int)score << endl;
   subclade_map.emplace(clade, make_pair(a1, a2));
 
 }
@@ -163,8 +170,7 @@ void TripartitionScorer::set_score(clade_bitset& clade, double score, clade_bits
 pair<clade_bitset, clade_bitset>& TripartitionScorer::get_subclades(clade_bitset& clade, vector<Clade>& clades) {
   if(subclade_map.count(clade) == 0){
     Clade c(ts, clade);
-    //    BOOST_LOG_TRIVIAL(error) << c.str() << " doesn't have subclades!" << endl;
-    //    c.score(*this, clades, cladetaxa);
+    ERR << c.str() << " doesn't have subclades!" << endl;
     assert(false);
   }
   return subclade_map.at(clade);

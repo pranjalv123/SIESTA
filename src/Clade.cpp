@@ -1,4 +1,6 @@
 #include "Clade.hpp"
+#include "Options.hpp"
+#include "Logger.hpp"
 #include "TripartitionScorer.hpp"
 #include <sstream>
 #include <unordered_set>
@@ -165,16 +167,21 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
   }
 
   value = scorer.get_score(taxa);
-  if (!std::isinf(value)) {
+  if (!std::isnan(value)) {
     return value;
   }
   clade_bitset sub1(ts.size()), sub2(ts.size());
+
+  int invert = 1;
+  if (Options::get("maximize")) {
+    invert = -1;
+  }
   
   if (size() == 2) {
     Clade c1(ts);
     c1.add(*begin());
     Tripartition tp(ts, *this, c1);
-    value = scorer.score(tp);
+    value = invert * scorer.score(tp);
 
     scorer.set_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
   }
@@ -189,8 +196,8 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
 	continue;
 
       
-      double score = scorer.score(tp) + tp.a1.score(scorer, clades, cladetaxa) + tp.a2.score(scorer, clades, cladetaxa);
-      if (std::isinf(value) || (score < value) ) {
+      double score = invert * scorer.score(tp) + tp.a1.score(scorer, clades, cladetaxa) + tp.a2.score(scorer, clades, cladetaxa);
+      if (std::isnan(value) || (score < value) ) {
 	value = score;
 	sub1 = tp.a1.taxa;
 	sub2 = tp.a2.taxa;	

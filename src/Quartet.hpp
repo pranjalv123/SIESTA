@@ -25,7 +25,8 @@ private:
 
 class QuartetDict {
 public:
-  QuartetDict(TaxonSet& ts, string quartetfile, bool invert);
+  QuartetDict(TaxonSet& ts, string quartetfile);
+  static QuartetDict* cl(TaxonSet& ts);
   double operator()(Taxon a, Taxon b, Taxon c, Taxon d);
   double operator()(Quartet& q);
   void set(Taxon a, Taxon b, Taxon c, Taxon d, double value);
@@ -36,6 +37,7 @@ private:
   typedef boost::multi_array<double, 4> array_type;
   array_type array;
   TaxonSet& ts;
+  static QuartetDict* cl_qd;
 };
 
 #endif // QUARTET_HPP__

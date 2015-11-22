@@ -5,6 +5,7 @@
 #include "TripartitionScorer.hpp"
 #include "AstralInterface.hpp"
 #include "Options.hpp"
+#include "Logger.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -21,100 +22,54 @@ void test() {
 }
 
 int main(int argc, char** argv) {
-  Options opt(argc, argv);
+  Options::init(argc, argv);
+  
+  if(Options::get("h help") || argc==1 ){
+    exit(system("bash get_args.sh"));
+  }
 
-
-  if (opt.profile) {
+  Logger::get();
+  
+  string profilefile;
+  
+  bool profile = Options::get("profile");
+  bool score = Options::get("s score");
+  string heuristic;
+  Options::get("c criterion", &heuristic);
+  
+  INFO << "Using heuristic " << heuristic << endl;
+  
+  
+  if (profile) {
 #ifdef ENABLE_PROFILING 
-    ProfilerStart(opt.profilefile.c_str());
+    ProfilerStart(profilefile.c_str());
 #else
     cerr << "wASTRAL must be compiled with ENABLE_PROFILING=ON for profiling to work!" << endl;
     return 1;
 #endif
-  }
-  
-  
-  if (opt.help || argc == 1) {
-    cout << opt.desc << "\n";
-    return 1;
-  }
+  }  
 
-  if (opt.test) {
-    cout << "TESTING" << endl;
-    test();
-    return 0;
-  }
+  TaxonSet& ts = CladeExtractor::get_taxonset();
   
-  if (opt.minimize && opt.maximize) {
-    cerr << "ERROR: --minimize and --maximize are not compatible." << endl;
-    return 1;
-  }
+  TripartitionScorer* tps = TripartitionScorerFactory::createInstance(heuristic, ts);
 
+  vector<Clade> cladev(CladeExtractor::get_clades().begin(), CladeExtractor::get_clades().end());
+  
+  CladeSelector cs(ts, *tps, cladev, CladeExtractor::get_cladetaxa());
 
+  bool maximize = Options::get("maximize");
+  
+  cs.run(maximize);
 
   
-  unordered_set<Clade> clade_set;
-
-  unordered_set<clade_bitset > cladetaxa;
-
-  stringstream clade_stream;
-  
-  if (opt.cladefile.size()) {
-    ifstream cladeFile(opt.cladefile);
-    clade_stream << cladeFile;
-  }
-  if (opt.astralfile.size()) {
-    AstralInterface ai(opt.astralfile);	
-    if (opt.exact) {
-      clade_stream << ai.getClades_exact(opt.genetreesfile, opt.verbose);
-    } else {
-      clade_stream << ai.getClades(opt.genetreesfile, opt.verbose);
-    }
-  }
-
-  TaxonSet ts(clade_stream.str());
-
-  stringstream ss(clade_stream.str());
-  string s;
-  while (!ss.eof()) {
-    getline(ss, s);
-    Clade c(ts, s);
-    clade_set.insert(c);
-    cladetaxa.insert(c.taxa);
-  }
-  
-
-  
-  Clade alltaxa(ts);
-  for (size_t i = 0; i < ts.size(); i++) {
-    alltaxa.add(i);
-  }
-
-  clade_set.insert(alltaxa);
-  
-  vector<Clade> clades(clade_set.begin(), clade_set.end());
-
-  //string quartetFile(opt.quartetsfile);
-  
-  //QuartetDict qd(ts, quartetFile, opt.maximize);
-
-  //DPTripartitionScorer scorer(ts, qd);
-  //BryantSteelTripartitionScorer scorer(ts, qd, clades);
-
-  RFTripartitionScorer scorer(ts, opt.genetreesfile);
-
-  
-  
-  CladeSelector cs(ts, scorer, clades, cladetaxa);
-
-  cs.run(opt.maximize);
-
 #ifdef ENABLE_PROFILING
-  if (opt.profile)
+  if (profile)
     ProfilerStop();
 #endif
-  if(opt.outputfile.size()) {
-    ofstream outfile(opt.outputfile);
+
+  string output;
+  if(Options::get("o output", &output)) {
+    ofstream outfile(output);
     outfile << cs.newick_tree << ';' << endl;
   }
   
