@@ -36,13 +36,17 @@ option_type get_option_type(string& arg) {
 void Options::init(int argc_, char** argv_) {
 
   for (int i = 1; i < argc_; i++) {
+    cerr << i << " " << argv_[i] << endl;
     argv.push_back(string(argv_[i]));
   }
+
+  argv.push_back("--");
   
   string last_option = "";
   
   for (string arg : argv) {
     option_type opttype = get_option_type(arg);
+    DEBUG << arg << " " <<  opttype << endl;
     switch(opttype) {
     case SHORT:
     case LONG:
@@ -60,7 +64,9 @@ void Options::init(int argc_, char** argv_) {
       last_option = "";
       break;
     case END:
-      return;
+      if (last_option != "") {
+	opts_map[last_option] = "";
+      }
     }
 
   }

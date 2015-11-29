@@ -45,7 +45,7 @@ void CladeExtractor::get_from_cl() {
   
   if (Options::get("X cladefile", &cladefile)) {
      ifstream cladefilestream(cladefile);
-     clade_stream << cladefilestream;
+     clade_stream << cladefilestream.rdbuf();
   }
 
   string astralfile;
@@ -53,10 +53,16 @@ void CladeExtractor::get_from_cl() {
   if (Options::get("a astral", &astralfile)) {
     AstralInterface ai(astralfile);
     string genetreesfile;
+    string scoretree;
     Options::get("g genetrees", &genetreesfile);
-    if (Options::get("x exact", 0)) {
+    if (Options::get("x exact")) {
+      INFO << "Running ASTRAL in exact mode " << endl;
       clade_stream << ai.getClades_exact(genetreesfile);
-    } else {
+    } else if (Options::get("s score", &scoretree)) {
+      INFO << "Scoring tree " << scoretree << endl;
+      clade_stream << ai.getClades_limited(scoretree);
+    }else {
+      INFO << "Running ASTRAL in default mode " << scoretree << endl;
       clade_stream << ai.getClades(genetreesfile);
     }
   }

@@ -25,7 +25,22 @@ int main(int argc, char** argv) {
   Options::init(argc, argv);
   
   if(Options::get("h help") || argc==1 ){
-    exit(system("bash get_args.sh"));
+    cout << " --a astral &astralfile \n\
+--c criterion &heuristic\n\
+--g genetrees &genetreesfile\n\
+--g genetrees &treesfile\n\
+--h help) || argc==1 \n\
+--maximize\n\
+--maximize\n\
+--o output &output\n\
+--profile\n\
+--q quartets &quartetFile\n\
+--s score &scoretree\n\
+string opts string* arg\n\
+--v verbose &level\n\
+--X cladefile &cladefile\n\
+--x exact" << endl;
+    exit(0);
   }
 
   Logger::get();
@@ -33,8 +48,7 @@ int main(int argc, char** argv) {
   string profilefile;
   
   bool profile = Options::get("profile");
-  bool score = Options::get("s score");
-  string heuristic;
+  string heuristic = "DPTripartitionScorer";
   Options::get("c criterion", &heuristic);
   
   INFO << "Using heuristic " << heuristic << endl;

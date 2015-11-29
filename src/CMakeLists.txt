@@ -18,6 +18,7 @@ if(ENABLE_PROFILING)
   target_link_libraries(wASTRAL profiler)
 endif(ENABLE_PROFILING)
 
-
+install(TARGETS wASTRAL
+		RUNTIME DESTINATION bin)
 
 
