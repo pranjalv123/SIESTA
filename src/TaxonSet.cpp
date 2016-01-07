@@ -1,14 +1,26 @@
 #include "TaxonSet.hpp"
+#include "Logger.hpp"
 #include <iostream>
 #include <cstring>
 
 TaxonSet::TaxonSet(string str):
   taxa_bs(resize_clades(str))
 {
+  static int exists = 0;
+  if (exists) {
+    ERR << "Creating a second taxon set!!!!!\n\n\n";
+  }
+  exists = 1;
   taxa.reserve(taxa_set.size());
+
   for (const string& i : taxa_set) {
     add(i);
   }
+  DEBUG << "Taxon Set of size " <<  size() << endl;
+  for (const string& i : taxa_set) {
+    DEBUG << (i) << endl;
+  }  
+  DEBUG << taxa_bs.str() << endl;
 }
 
 

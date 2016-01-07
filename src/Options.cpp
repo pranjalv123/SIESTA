@@ -71,6 +71,7 @@ void Options::init(int argc_, char** argv_) {
 
   }
 
+  DEBUG << "OPTIONS MAP:\n";
   for (auto& kv : opts_map) {
     DEBUG << kv.first << " = " << kv.second << endl;
   }

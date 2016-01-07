@@ -127,6 +127,11 @@ void Clade::test() {
   cout << ts.str() << endl;
 }
 
+Clade Clade::overlap(const Clade& other) const {
+  clade_bitset cb = other.taxa & taxa;
+  return Clade(ts, cb);
+}
+
 bool Clade::contains(const Clade& other) const {
   BitVectorFixed overlap(other.taxa & taxa);
   return overlap == other.taxa;
@@ -217,12 +222,29 @@ Tripartition::Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade) :
   rest(clade.complement())
 {
   assert(clade.contains(subclade));
+
+  assert(a1.overlap(rest).size() == 0);
+  assert(a2.overlap(rest).size() == 0);
+  assert(a2.overlap(a1).size() == 0);
 }
 
 void Clade::do_swap(Clade& other) {
   std::swap(taxa, other.taxa);
 }
 
+
+string Tripartition::str()  const {
+  
+  assert(a1.overlap(rest).size() == 0);
+  assert(a2.overlap(rest).size() == 0);
+  assert(a2.overlap(a1).size() == 0);
+  return "{" + a1.str() + "/" + a2.str() + "/" + rest.str() + "}";
+}
+
+
+string Bipartition::str() const {
+  return "{" + a1.str() + " " + a2.str() + "}";
+}
 
 namespace std
 {

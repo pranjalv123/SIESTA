@@ -23,7 +23,7 @@ public:
     ts(ts)
   {}
 
-  void run(bool invert);
+  double run(bool invert);
   string newick_tree;
 };
 

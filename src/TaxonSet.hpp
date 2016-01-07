@@ -38,7 +38,7 @@ public:
   }
   size_t size() const;
   Taxon add(const string& str);
-  string str() {
+  string str() const {
     stringstream ss;
     for (size_t i = 0; i < taxa.size(); i++) {
       ss << i << "\t" << taxa[i] << endl;

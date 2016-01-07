@@ -29,7 +29,7 @@ public:
     score_map[ec.get_taxa()] = 0;
     subclade_map.emplace(ec.get_taxa(), make_pair(ec.get_taxa(), ec.get_taxa()));
   }
- 
+  virtual double adjust_final_score(double score);
 protected:
   TaxonSet& ts;
 private:
@@ -97,9 +97,12 @@ class RFTripartitionScorer : public TripartitionScorer {
 public:
   DEC_SCORER(RFTripartitionScorer);
   RFTripartitionScorer(TaxonSet& ts);
-  void addSourceTree(string tree);
+  int addSourceTree(string tree);
   virtual double score (const Tripartition& t);
   bool matches(const Tripartition& t, const Bipartition& bp);
+  int total_weight;
+  int n_trees;
+  virtual double adjust_final_score(double score);
 private:
   unordered_map<Bipartition, double > clade_weights;
 };

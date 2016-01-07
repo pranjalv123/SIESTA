@@ -53,17 +53,19 @@ void CladeExtractor::get_from_cl() {
   if (Options::get("a astral", &astralfile)) {
     AstralInterface ai(astralfile);
     string genetreesfile;
+    string extratreesfile;
     string scoretree;
     Options::get("g genetrees", &genetreesfile);
+    Options::get("e extragenetrees", &extratreesfile);
     if (Options::get("x exact")) {
       INFO << "Running ASTRAL in exact mode " << endl;
-      clade_stream << ai.getClades_exact(genetreesfile);
+      clade_stream << ai.getClades_exact(genetreesfile, extratreesfile);
     } else if (Options::get("s score", &scoretree)) {
       INFO << "Scoring tree " << scoretree << endl;
-      clade_stream << ai.getClades_limited(scoretree);
+      clade_stream << ai.getClades_limited(scoretree, extratreesfile);
     }else {
       INFO << "Running ASTRAL in default mode " << scoretree << endl;
-      clade_stream << ai.getClades(genetreesfile);
+      clade_stream << ai.getClades(genetreesfile, extratreesfile);
     }
   }
 
@@ -83,7 +85,12 @@ void CladeExtractor::get_from_cl() {
     alltaxa.add(i);
   }
 
-  cl_clades.insert(alltaxa);  
+  cl_clades.insert(alltaxa);
+
+  if (alltaxa.size() == 0) {
+    ERR << "No clades found\n";
+    exit(-1);
+  }
 }
 
 
@@ -98,6 +105,7 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
   char* current = &(tree[0]);
   char* end = &(tree[tree.length()]);
 
+  DEBUG << ts.taxa_bs.str() << endl;
   while (current < end) {
     //    cout << current << endl;
     
@@ -114,7 +122,7 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
       n_op = end;
     if (n_cm == 0)
       n_cm = end;
-    
+
     if (n_cp < n_op && n_cp < n_cm) { //the next delim is a close paren
       if(current < n_cp) { //there is a token 
 	string token(current, n_cp - current);
@@ -151,7 +159,8 @@ unordered_set<Clade> CladeExtractor::extract(TaxonSet& ts, const string& tree_c,
       current = n_cm + 1;
     }
     
-  }  
+  }
+  DEBUG << ts.taxa_bs.str() << endl;
   return unordered_set<Clade>(clades.begin(), clades.end());
 }
 

@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 --c criterion &heuristic\n\
 --g genetrees &genetreesfile\n\
 --g genetrees &treesfile\n\
---h help) || argc==1 \n\
+--h help\n\
 --maximize\n\
 --maximize\n\
 --o output &output\n\
@@ -66,6 +66,13 @@ string opts string* arg\n\
   TaxonSet& ts = CladeExtractor::get_taxonset();
   
   TripartitionScorer* tps = TripartitionScorerFactory::createInstance(heuristic, ts);
+  if (!tps)
+    tps = TripartitionScorerFactory::createInstance(heuristic + "TripartitionScorer", ts);
+  if (!tps) {
+    ERR << "Invalid criterion: make sure you have supplied the -c argument\n";
+    exit(-1);
+      
+  }
 
   vector<Clade> cladev(CladeExtractor::get_clades().begin(), CladeExtractor::get_clades().end());
   
@@ -73,7 +80,7 @@ string opts string* arg\n\
 
   bool maximize = Options::get("maximize");
   
-  cs.run(maximize);
+  double score = cs.run(maximize);
 
   
 #ifdef ENABLE_PROFILING
@@ -84,7 +91,11 @@ string opts string* arg\n\
   string output;
   if(Options::get("o output", &output)) {
     ofstream outfile(output);
-    outfile << cs.newick_tree << ';' << endl;
+    if (Options::get("s score")) {
+      outfile << tps->adjust_final_score(score) << endl;
+    } else {
+      outfile << cs.newick_tree << ';' << endl;
+    }
   }
   
   

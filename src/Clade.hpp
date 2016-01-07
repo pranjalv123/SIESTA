@@ -40,6 +40,9 @@ public:
   bool contains(const Clade& other) const;
   bool contains(const Taxon taxon) const;
 
+  Clade overlap(const Clade& other) const;
+
+
   static void test();
   
   void add(const Taxon taxon);
@@ -66,6 +69,7 @@ public:
 struct Tripartition {
   Clade a1, a2, rest;
   Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade);
+  string str() const;
 };
 
 struct Bipartition {
@@ -78,13 +82,14 @@ struct Bipartition {
   bool operator==(const Bipartition& other) const {
     return ((a1 == other.a1) && (a2 == other.a2)) || ((a2 == other.a1) && (a1 == other.a2));
   }
+  string str() const;
 };
 
 
 namespace std {
   template <> struct hash<Clade> {
     size_t operator()(const Clade& bvf) const {
-      return bvf.hash();
+      return bvf.hash() ;
     }
   };
     template <> struct hash<Bipartition> {
