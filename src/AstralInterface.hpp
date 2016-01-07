@@ -8,8 +8,11 @@ private:
   string astralPath;
 public:
   AstralInterface(string astralPath) : astralPath(astralPath) {}
-  string getClades(string genetreefile) {
+  string getClades(string genetreefile, string extratreesfile) {
     string s = "java -jar " + astralPath + " -i " + genetreefile + " -k searchspace_norun -o /dev/null";
+    if (extratreesfile.size()) {
+      s += " -e " + extratreesfile;
+    }
     if (!Logger::isEnabled("DEBUG") )
 	s += " 2> /dev/null";
 
@@ -27,9 +30,11 @@ public:
     return result.str();
   }
 
-  string getClades_exact(string genetreefile) {
+  string getClades_exact(string genetreefile, string extratreesfile) {
     string s = "java -jar " + astralPath + " -x -i " + genetreefile + " -k searchspace_norun -o /dev/null";
-
+    if (extratreesfile.size()) {
+      s += " -e " + extratreesfile;
+    }
     if (!Logger::isEnabled("DEBUG") )
 	s += " 2> /dev/null";
 
@@ -48,9 +53,11 @@ public:
   }
 
   
-  string getClades_limited(string genetreefile) {
+  string getClades_limited(string genetreefile, string extratreesfile) {
     string s = "java -jar " + astralPath + " -p0 -i " + genetreefile + " -k searchspace_norun -o /dev/null";
-
+    if (extratreesfile.size()) {
+      s += " -e " + extratreesfile;
+    }
     if (!Logger::isEnabled("DEBUG") )
 	s += " 2> /dev/null";
 
