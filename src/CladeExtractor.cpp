@@ -70,6 +70,7 @@ void CladeExtractor::get_from_cl() {
       if (Options::get("extraextra")) {
 	clade_stream << ai.getClades(extratreesfile, "");
 	string fname = tmpnam(0);
+	DEBUG << "Getting lots more clades " << fname << endl;
 	ofstream fs(fname);
 	ifstream gtstream(genetreesfile);
 	ifstream extrastream(extratreesfile);
