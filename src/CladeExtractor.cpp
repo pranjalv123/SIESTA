@@ -56,6 +56,7 @@ void CladeExtractor::get_from_cl() {
     string extratreesfile;
     string scoretree;
     Options::get("g genetrees", &genetreesfile);
+   
     Options::get("e extragenetrees", &extratreesfile);
     if (Options::get("x exact")) {
       INFO << "Running ASTRAL in exact mode " << endl;
@@ -66,6 +67,16 @@ void CladeExtractor::get_from_cl() {
     }else {
       INFO << "Running ASTRAL in default mode " << scoretree << endl;
       clade_stream << ai.getClades(genetreesfile, extratreesfile);
+      if (Options::get("extraextra")) {
+	clade_stream << ai.getClades(extratreesfile, "");
+	string fname = tmpnam(0);
+	ofstream fs(fname);
+	ifstream gtstream(genetreesfile);
+	ifstream extrastream(extratreesfile);
+	fs << gtstream.rdbuf() << '\n' << extrastream.rdbuf() << endl;
+	fs.flush();
+	clade_stream  << ai.getClades(fname, "");
+      }
     }
   }
 
