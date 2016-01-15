@@ -81,15 +81,23 @@ void CladeExtractor::get_from_cl() {
     }
   }
 
+  INFO << "Got clades as string!" << endl;
+  
   ts = new TaxonSet(clade_stream.str());
 
   stringstream ss(clade_stream.str());
   string s;
+  int n = 0;
   while (!ss.eof()) {
     getline(ss, s);
     Clade c(*ts, s);
     cl_clades.insert(c);
     cl_cladetaxa.insert(c.taxa);
+    if (n % 10000 == 0) {
+      INFO << "Read " << n << "clades" << endl;
+    }
+    n++;
+
   }
 
   Clade alltaxa(*ts);

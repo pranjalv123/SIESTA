@@ -7,7 +7,7 @@
 class Quartet {
 public:
   Quartet(TaxonSet& ts, Taxon a, Taxon b, Taxon c, Taxon d);
-  Quartet(TaxonSet& ts) : ts(ts) {}
+  Quartet(TaxonSet& ts) : taxa{0,0,0,0}, ts(ts) {}
   double parse(char* str);
   void parse_newick(char* str);
   void parse_wqmc(char* str);
