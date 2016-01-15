@@ -80,11 +80,14 @@ QuartetDict::QuartetDict(TaxonSet& ts, string quartetfile) :
   DEBUG << "Making quartet dict with size " << ts.size() << endl;
   array.resize(extents[ts.size()][ts.size()][ts.size()][ts.size()]);
   size_t i,j,k,l;
-  for (i = 0; i < ts.size(); i++)
+
+  for (i = 0; i < ts.size(); i++){
       for (j = 0; j < ts.size(); j++)
 	  for (k = 0; k < ts.size(); k++)
-	      for (l = 0; l < ts.size(); l++)
-		array[i][j][k][l] = 0;
+	    for (l = 0; l < ts.size(); l++){
+	      array[i][j][k][l] = 0;
+	    }
+  }
   
   while(!infile.eof()) {
     getline(infile, s);
