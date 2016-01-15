@@ -92,8 +92,10 @@ int Options::get(string opts, string* arg) {
     if (opts_map.count(opt)) {
       if (arg)
 	*arg = opts_map[opt];
+
       return 1;
     }
+
   }
   return 0;
   

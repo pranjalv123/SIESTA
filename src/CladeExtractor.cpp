@@ -65,7 +65,7 @@ void CladeExtractor::get_from_cl() {
       INFO << "Scoring tree " << scoretree << endl;
       clade_stream << ai.getClades_limited(scoretree, extratreesfile);
     }else {
-      INFO << "Running ASTRAL in default mode " << scoretree << endl;
+      INFO << "Running ASTRAL in default mode  " << extratreesfile << endl;
       clade_stream << ai.getClades(genetreesfile, extratreesfile);
       if (Options::get("extraextra")) {
 	clade_stream << ai.getClades(extratreesfile, "");

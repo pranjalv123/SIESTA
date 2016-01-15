@@ -5,7 +5,7 @@
 #include <limits>
 #include <fstream>
 #include <cmath>
-#include <gperftools/profiler.h>
+//#include <gperftools/profiler.h>
 
 DEF_SCORER(DPTripartitionScorer);
 DEF_SCORER(BryantSteelTripartitionScorer);
