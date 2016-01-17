@@ -2,6 +2,8 @@
 #include "Options.hpp"
 #include <iostream>
 #include <ostream>
+#include <iomanip>
+#include <ctime>
 
 using namespace std;
 
@@ -41,7 +43,7 @@ ostream& Logger::log(string tag, string fname, int lineno) {
   Logger& logger = get();
   
   if (logger.enabled_tags.count(tag)) {
-    cerr << "[" << __TIME__ << "] " << tag << " {" << fname << ":" << lineno << "} " ;
+    cerr << "[" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << fname << ":" << lineno << "} " ;
     return cerr;
   }
   return nstream;
