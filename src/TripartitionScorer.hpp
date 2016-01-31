@@ -17,10 +17,19 @@ namespace std {
     }
   };
 };
-  
+
+
+/****
+This is the base (pure virtual) TripartitionScorer class. Children
+need to implement score(const Tripartition& t).
+ ****/
 class TripartitionScorer {
 public:
+  //Returns the score of a tripartition
   virtual double score(const Tripartition& t)=0;
+  virtual double adjust_final_score(double score);
+
+  // these are used internally by the DP algorithm
   double get_score(clade_bitset& clade);
   void set_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2);
   pair<clade_bitset, clade_bitset>& get_subclades(clade_bitset& clade, vector<Clade>& clades);
@@ -29,13 +38,14 @@ public:
     score_map[ec.get_taxa()] = 0;
     subclade_map.emplace(ec.get_taxa(), make_pair(ec.get_taxa(), ec.get_taxa()));
   }
-  virtual double adjust_final_score(double score);
 protected:
   TaxonSet& ts;
 private:
   unordered_map <clade_bitset, double> score_map;
   unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
 };
+
+//below is fun internal stuff 
 
 
 template <typename T> TripartitionScorer* createT(TaxonSet& ts) { return new T(ts); }
@@ -71,41 +81,6 @@ struct DerivedTPScorer : TripartitionScorerFactory {
 
 #define DEF_SCORER(NAME) \
     DerivedTPScorer<NAME> NAME::reg(#NAME)
-
-
-class DPTripartitionScorer : public TripartitionScorer{
-public:
-  DEC_SCORER(DPTripartitionScorer);
-  DPTripartitionScorer(TaxonSet& ts);
-  virtual double score(const Tripartition& t);
-private:
-  QuartetDict& qd;
-};
-
-class BryantSteelTripartitionScorer : public TripartitionScorer{
-public:
-  DEC_SCORER(BryantSteelTripartitionScorer);
-  BryantSteelTripartitionScorer(TaxonSet& ts);
-  virtual double score(const Tripartition& t);
-private:
-  unordered_map<clade_bitset, map<pair<Taxon, Taxon>, double> >  W;
-  QuartetDict qd;
-};
-
-
-class RFTripartitionScorer : public TripartitionScorer {
-public:
-  DEC_SCORER(RFTripartitionScorer);
-  RFTripartitionScorer(TaxonSet& ts);
-  int addSourceTree(string tree);
-  virtual double score (const Tripartition& t);
-  bool matches(const Tripartition& t, const Bipartition& bp);
-  int total_weight;
-  int n_trees;
-  virtual double adjust_final_score(double score);
-private:
-  unordered_map<Bipartition, double > clade_weights;
-};
 
 
 #endif

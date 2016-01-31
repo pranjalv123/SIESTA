@@ -41,9 +41,11 @@ Logger& Logger::get() {
 
 ostream& Logger::log(string tag, string fname, int lineno) {
   Logger& logger = get();
+  time_t t = time(nullptr);
+  tm time = *localtime(&t);
   
   if (logger.enabled_tags.count(tag)) {
-    cerr << "[" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << fname << ":" << lineno << "} " ;
+    cerr << "[" << std::put_time(&time, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << fname << ":" << lineno << "} " ;
     return cerr;
   }
   return nstream;

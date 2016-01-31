@@ -22,6 +22,9 @@ void test() {
 }
 
 int main(int argc, char** argv) {
+
+  //parse the command-line arguments, set up the logger, set up profiling, ...
+  
   Options::init(argc, argv);
   
   if(Options::get("h help") || argc==1 ){
@@ -63,8 +66,15 @@ string opts string* arg\n\
 #endif
   }  
 
-  TaxonSet& ts = CladeExtractor::get_taxonset();
+
+  //This also initializes the clades and gets them from whatever source is specified
+  //This could be gene trees with ASTRAL or clades that are explicitly given
   
+  TaxonSet& ts = CladeExtractor::get_taxonset();
+
+
+  //Create whatever tripartition scorer we want to use, e.g. RF, BryantSteel, etc.
+  //See TripartitionScorer.hpp for these definitions
   TripartitionScorer* tps = TripartitionScorerFactory::createInstance(heuristic, ts);
   if (!tps)
     tps = TripartitionScorerFactory::createInstance(heuristic + "TripartitionScorer", ts);
@@ -75,7 +85,8 @@ string opts string* arg\n\
   }
 
   vector<Clade> cladev(CladeExtractor::get_clades().begin(), CladeExtractor::get_clades().end());
-  
+
+  //Actually run the DP algorithm
   CladeSelector cs(ts, *tps, cladev, CladeExtractor::get_cladetaxa());
 
   bool maximize = Options::get("maximize");
@@ -88,6 +99,7 @@ string opts string* arg\n\
     ProfilerStop();
 #endif
 
+  //Output results
   string output;
   if(Options::get("o output", &output)) {
     ofstream outfile(output);
