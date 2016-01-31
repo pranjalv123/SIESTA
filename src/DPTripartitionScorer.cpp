@@ -10,11 +10,15 @@
 
 DEF_SCORER(DPTripartitionScorer);
 
+
+//make a quartet dictionary based on the command line arguments
+
 DPTripartitionScorer::DPTripartitionScorer(TaxonSet& ts) :
   TripartitionScorer(ts),
   qd(*QuartetDict::cl(ts)) {}
 
 
+//find quartet support of a tripartition
 double DPTripartitionScorer::score(const Tripartition& t) {
   double val = 0;
   

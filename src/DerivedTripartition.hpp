@@ -2,6 +2,11 @@
 #define DERIVED_TRIPARTITION_SCORER_HPP__
 
 
+//this is the kind of thing you need to do to implement a tripartition
+//scorer - make a constructor and a score function, you also need to
+//call DEC_SCORER(name of scorer) in the body of the class, and
+//DEF_SCORER(name of scorer) in the .cpp file.
+
 class DPTripartitionScorer : public TripartitionScorer{
 public:
   DEC_SCORER(DPTripartitionScorer);
