@@ -9,9 +9,8 @@ option(ENABLE_PROFILING
   "Enable google profiler"
   OFF)
 
-
 add_executable(wASTRAL ${SOURCES})
-target_link_libraries(wASTRAL pthread )
+target_link_libraries(wASTRAL pthread python2.7 )
 
 if(ENABLE_PROFILING)
   add_definitions(-DENABLE_PROFILING)

@@ -1,5 +1,5 @@
 #include "TripartitionScorer.hpp"
-#include "DerivedTripartitionScorer.hpp"
+#include "BryantSteelTripartitionScorer.hpp"
 #include "CladeExtractor.hpp"
 #include "Logger.hpp"
 

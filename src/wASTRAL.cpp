@@ -7,6 +7,11 @@
 #include "Options.hpp"
 #include "Logger.hpp"
 
+#include "RFTripartitionScorer.hpp"
+#include "DPTripartitionScorer.hpp"
+#include "BryantSteelTripartitionScorer.hpp"
+#include "PythonTripartitionScorer.hpp"
+
 #include <fstream>
 #include <iostream>
 
@@ -36,6 +41,7 @@ int main(int argc, char** argv) {
 --maximize\n\
 --maximize\n\
 --o output &output\n\
+--p pythonfile\n\
 --profile\n\
 --q quartets &quartetFile\n\
 --s score &scoretree\n\

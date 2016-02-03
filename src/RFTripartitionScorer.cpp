@@ -1,5 +1,5 @@
 #include "TripartitionScorer.hpp"
-#include "DerivedTripartitionScorer.hpp"
+#include "RFTripartitionScorer.hpp"
 #include "CladeExtractor.hpp"
 #include "Logger.hpp"
 

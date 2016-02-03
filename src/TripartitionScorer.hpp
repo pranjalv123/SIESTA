@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <map>
+#include "Logger.hpp"
 #include "Clade.hpp"
 #include "Quartet.hpp"
 
@@ -55,8 +56,14 @@ struct TripartitionScorerFactory {
 
   static TripartitionScorer * createInstance(string const& s, TaxonSet& ts) {
     map_type::iterator it = getMap()->find(s);
-    if(it == getMap()->end())
+    if(it == getMap()->end()) {
+      map_type* mp = getMap();
+      ERR << "Valid criteria:" << endl;
+      for (auto& i : *mp) {
+	ERR << i.first << endl;
+      }
       return 0;
+    }
     return it->second(ts);      
   }
  protected:
