@@ -10,12 +10,10 @@ public:
   DEC_SCORER(PythonTripartitionScorer);
   PythonTripartitionScorer(TaxonSet& ts);
   virtual double score(const Tripartition& t);
-
+  virtual double adjust_final_score(double score);
 
 private:  
-  PyObject *pName, *pModule, *pScoreFn, *pInitFn;
-  PyObject *pArgs, *pValue;
-
+  PyObject *pName, *pModule, *pScoreFn, *pInitFn, *pAdjustFn;
   
 };
 

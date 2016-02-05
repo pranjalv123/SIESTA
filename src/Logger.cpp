@@ -4,6 +4,7 @@
 #include <ostream>
 #include <iomanip>
 #include <ctime>
+#include <cstring>
 
 using namespace std;
 
@@ -45,7 +46,7 @@ ostream& Logger::log(string tag, string fname, int lineno) {
   tm time = *localtime(&t);
   
   if (logger.enabled_tags.count(tag)) {
-    cerr << "[" << std::put_time(&time, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << fname << ":" << lineno << "} " ;
+    cerr << "[" << std::put_time(&time, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << rindex(fname.c_str(), '/') + 1 << ":" << lineno << "} " ;
     return cerr;
   }
   return nstream;

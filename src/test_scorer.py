@@ -1,9 +1,15 @@
-import sys
-import time 
-def init():
+import dendropy
+import argparse
+
+
+taxon_namespace = None
+
+
+def init(ts, opts):
     print "CALLING INIT FN"
-    print "ARGV:", sys.argv
-    time.sleep(5)
+    taxon_namespace = ts
+    parser = argparse.ArgumentParser()
+    print "OPTIONS", opts
 def score(t):
     print "CALLING SCORE FN"
     return 0

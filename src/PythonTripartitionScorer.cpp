@@ -11,33 +11,69 @@ PythonTripartitionScorer::PythonTripartitionScorer(TaxonSet& ts) :
   string pfile;
   
   Py_Initialize();
-  
-  assert(Options::get("p pythonfile", &pfile));
+  Options::get("p pythonfile", &pfile);
   DEBUG << "Python module: " << pfile << endl;
   pName = PyString_FromString(pfile.c_str());
   pModule = PyImport_Import(pName);
   Py_DECREF(pName);
 
+  if (PyErr_Occurred())
+    PyErr_Print();
+  
   assert(pModule);
 
   pInitFn = PyObject_GetAttrString(pModule, "init");
+  pAdjustFn = PyObject_GetAttrString(pModule, "adjust");
   pScoreFn = PyObject_GetAttrString(pModule, "score");
+  if (PyErr_Occurred())
+    PyErr_Print();
 
+  
   assert(pScoreFn);
 
   if (pInitFn && PyCallable_Check(pInitFn)) {
     DEBUG << "Executing init function" << endl;
-    pArgs = PyTuple_New(1);
+
+
+    PyObject *pArgs, *pTaxonSet;
+
+    PyObject *dendropy = PyImport_Import(PyString_FromString("dendropy"));
+    assert(dendropy);
+
+    PyObject *tn = PyObject_GetAttrString(dendropy, "TaxonNamespace");
+    assert(tn);
     
-    PyTuple_SetItem(pArgs, 0, PyString_FromString(ts.str().c_str()));
+    tn = PyObject_CallObject(tn, NULL);
+    assert(tn);
     
-    //    PyObject_CallObject(pInitFn, pArgs);
-    PyObject_CallFunction(pInitFn, NULL);
+    PyObject *add = PyObject_GetAttrString(tn, "new_taxon");
+    assert(add);
+    
+    for (int i = 0; i < ts.size(); i++) {
+      pArgs = PyTuple_New(1);
+      PyTuple_SetItem(pArgs, 0, PyString_FromString(ts[i].c_str()));
+      PyObject_CallObject(add, pArgs);
+      Py_DECREF(pArgs);
+    }
+      
+
+    pArgs = PyTuple_New(2);
+    
+    PyTuple_SetItem(pArgs, 0, tn);
+
+    PyObject *ls = PyList_New(0);
+
+    for (string& s : Options::argv) {
+      PyList_Append(ls, PyString_FromString(s.c_str()));
+    }
+    
+    PyTuple_SetItem(pArgs, 1, ls);
+    
+    PyObject_CallFunction(pInitFn, "O", pArgs);
+    
     if (PyErr_Occurred())
        PyErr_Print();
     Py_DECREF(pArgs);
-    Py_Finalize();
-    exit(0);
   }
   else {
     ERR << "No init function" << endl;
@@ -46,5 +82,42 @@ PythonTripartitionScorer::PythonTripartitionScorer(TaxonSet& ts) :
 }
 
 double PythonTripartitionScorer::score(const Tripartition& t) {
-  return 0;
+  PyObject *pArgs = PyTuple_New(3);
+  PyObject *val1 = _PyLong_FromByteArray((unsigned char*)t.a1.taxa.data, t.a1.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  PyTuple_SetItem(pArgs, 0, val1);
+  PyObject *val2 = _PyLong_FromByteArray((unsigned char*)t.a2.taxa.data, t.a2.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  PyTuple_SetItem(pArgs, 1, val2);
+  PyObject *val3 = _PyLong_FromByteArray((unsigned char*)t.rest.taxa.data, t.rest.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  PyTuple_SetItem(pArgs, 2, val3);
+  
+  PyObject* retval = PyObject_CallFunction(pScoreFn, "O", pArgs);
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    exit(1);
+  }
+
+  double output = PyFloat_AsDouble(retval);
+  
+  Py_DECREF(val1);
+  Py_DECREF(val2);
+  Py_DECREF(val3);
+  //Py_DECREF(pArgs);
+  //Py_DECREF(retval);
+
+  return output;
+  
+}
+
+double PythonTripartitionScorer::adjust_final_score(double d) {
+  if (!pAdjustFn)
+    return d;
+  PyObject* pArgs = PyTuple_New(1);
+  PyTuple_SetItem(pArgs, 0, PyFloat_FromDouble(d));
+  PyObject* retval = PyObject_CallFunction(pAdjustFn, "O", pArgs);
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    exit(1);
+  }
+  return PyFloat_AsDouble(retval);
+  
 }

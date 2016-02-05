@@ -22,6 +22,7 @@ RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts) :
   while(getline(file, tree)) {
     total_weight += addSourceTree(tree);
     n_trees ++;
+    DEBUG << n_trees << "\t" << total_weight << endl;
   }
   for (auto& i: clade_weights) {
     DEBUG << i.first.str() << "\t" << i.second << endl;
@@ -40,6 +41,7 @@ int RFTripartitionScorer::addSourceTree(string tree) {
     if (comp.size() && clade.size())
       clade_weights[Bipartition(clade, comp)] += 1;
   }
+
   return clades.size();
 }
 
@@ -89,9 +91,11 @@ double RFTripartitionScorer::score(const Tripartition& t) {
       weight += c_weight;
     }
   }
+  DEBUG << "weight " << t.str() << " " << weight << endl;
   return weight;
 }
 
 double RFTripartitionScorer::adjust_final_score(double score) {
+  PROGRESS << "Raw Score: " << score << endl;
   return ((total_weight - score) - n_trees) * 2;
 }

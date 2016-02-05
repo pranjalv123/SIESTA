@@ -18,12 +18,14 @@ public:
 
   static void init(int argc, char** argv);
 
-  static bool inited;
+  static string str();
   
+  static bool inited;
+
+  static vector<string> argv;
 private:
   
-  static vector<string> argv;
-
+  static string input;
   static map<string, string> opts_map;
   
 };

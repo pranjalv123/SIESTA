@@ -36,7 +36,7 @@ private:
   
 };
 
-#define LOG(tag) (Logger::log((tag), (__FILE__), (__LINE__)))
+#define LOG(tag) (Logger::log((tag), (__BASE_FILE__), (__LINE__)))
 #define DEBUG LOG("DEBUG")
 #define ERR LOG("ERROR")
 #define WARN LOG("WARNING")

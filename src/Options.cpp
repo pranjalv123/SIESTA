@@ -9,7 +9,7 @@ bool Options::inited = false;
 
 vector<string> Options::argv;
 map<string, string> Options::opts_map;
-
+string Options::input;
 
 enum option_type {SHORT, LONG, ARG, END, EMPTY};
 
@@ -33,11 +33,16 @@ option_type get_option_type(string& arg) {
   return SHORT;
 }
 
+string Options::str() {
+  return input;
+}
+
 void Options::init(int argc_, char** argv_) {
 
   for (int i = 1; i < argc_; i++) {
     cerr << i << " " << argv_[i] << endl;
     argv.push_back(string(argv_[i]));
+    input += string(argv_[i]) + " ";
   }
 
   argv.push_back("--");
