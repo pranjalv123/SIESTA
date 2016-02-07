@@ -81,7 +81,11 @@ PythonTripartitionScorer::PythonTripartitionScorer(TaxonSet& ts) :
   Py_DECREF(pInitFn);
 }
 
-double PythonTripartitionScorer::score(const Tripartition& t) {
+double PythonTripartitionScorer::score(const Tripartition& t) 
+{
+  double output;
+#pragma omp critical
+  {
   PyObject *pArgs = PyTuple_New(3);
   PyObject *val1 = _PyLong_FromByteArray((unsigned char*)t.a1.taxa.data, t.a1.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
   PyTuple_SetItem(pArgs, 0, val1);
@@ -96,16 +100,16 @@ double PythonTripartitionScorer::score(const Tripartition& t) {
     exit(1);
   }
 
-  double output = PyFloat_AsDouble(retval);
+  output = PyFloat_AsDouble(retval);
   
   Py_DECREF(val1);
   Py_DECREF(val2);
   Py_DECREF(val3);
   //Py_DECREF(pArgs);
   //Py_DECREF(retval);
-
+  }
   return output;
-  
+    
 }
 
 double PythonTripartitionScorer::adjust_final_score(double d) {

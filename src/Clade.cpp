@@ -191,7 +191,8 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
     scorer.set_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
   }
   else {
-    for (Clade& subclade: clades) {
+    for (size_t i = 0; i < clades.size(); i++) {
+      Clade& subclade = clades[i];
       if (subclade.size() >= size() || !contains(subclade) || subclade.size() == 0 )
 	continue;
 

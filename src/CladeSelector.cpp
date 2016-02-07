@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 #include <algorithm>
 #include <iostream>
-
+#include <vector>
 
 
 
@@ -12,16 +12,30 @@ double CladeSelector::run(bool invert) {
 
   INFO << "Scoring " << clades.size() << " clades" << endl;
 
-  int n = 0;
-  
-  for (Clade& clade : clades){
-    DEBUG << clade.str() << endl;
-    clade.score(scorer, clades, cladetaxa);
-    if (n % 1000 == 0) {
-      INFO << "Scored " << n << "/" << clades.size() << endl;
-    }
-    n++;
+
+  int current_size = 0;
+
+  vector<vector<Clade*> > splitup(clades[clades.size()-1].size() + 1);
+
+  for (Clade& c: clades) {
+    splitup.at(c.size()).push_back(&c);
   }
+
+  for (vector<Clade*> sublist : splitup) {
+    INFO << "Processing clades of size " << current_size << endl;
+#pragma omp parallel for
+    for (size_t i = 0; i < sublist.size(); i++){
+      Clade& clade = *(sublist[i]);
+      DEBUG << clade.str() << endl;
+      clade.score(scorer, clades, cladetaxa);
+    }
+    
+    INFO << "Finished processing clades of size " << current_size << endl;
+    current_size++;
+  }
+
+  
+  
   double score = clades.back().score(scorer, clades, cladetaxa);
   if (invert) { score = -score; }
   //BOOST_LOG_TRIVIAL(info) << "Score: " << format("%f") % score;

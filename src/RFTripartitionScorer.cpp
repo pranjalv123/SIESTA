@@ -27,7 +27,7 @@ RFTripartitionScorer::RFTripartitionScorer(TaxonSet& ts) :
   for (auto& i: clade_weights) {
     DEBUG << i.first.str() << "\t" << i.second << endl;
   }
-  cout << "Total Weight: " << total_weight << endl;
+  INFO << "Total Weight: " << total_weight << endl;
 }
 
 int RFTripartitionScorer::addSourceTree(string tree) {
@@ -35,14 +35,18 @@ int RFTripartitionScorer::addSourceTree(string tree) {
   unordered_set<Clade> clades = CladeExtractor::extract(ts, tree, tree_taxa);
   unordered_set<Clade> clade_complements;
   Clade tree_clade(ts, tree_taxa);
+  int n = 0;
+  
   for (const Clade& clade : clades) {
     Clade comp(tree_clade.minus(clade));
     //    Clade comp(clade.complement());
-    if (comp.size() && clade.size())
+    if (comp.size() && clade.size()) {
       clade_weights[Bipartition(clade, comp)] += 1;
+      n++;
+    }
   }
 
-  return clades.size();
+  return n;
 }
 
 bool RFTripartitionScorer::matches(const Tripartition& t, const Bipartition& bp) {
@@ -97,5 +101,5 @@ double RFTripartitionScorer::score(const Tripartition& t) {
 
 double RFTripartitionScorer::adjust_final_score(double score) {
   PROGRESS << "Raw Score: " << score << endl;
-  return ((total_weight - score) - n_trees) * 2;
+  return ((total_weight - score) ) * 2;
 }

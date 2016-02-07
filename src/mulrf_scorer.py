@@ -19,15 +19,17 @@ def init(ts, opts):
     
     args, _ = parser.parse_known_args(opts)
 
-    genetrees = dendropy.TreeList.get_from_path(args.genetrees, 'newick', taxon_namespace = ts)
+    genetrees = dendropy.TreeList.get_from_path(args.genetrees, 'newick', taxon_namespace = ts, preserve_underscores=True)
 
+    for i in enumerate(ts):
+        print i
+    
     for t in genetrees:
         t.update_bipartitions()
-        for b in t.bipartition_encoding:
-            x = (b._split_bitmask, b._tree_leafset_bitmask ^ b._split_bitmask)
-            if min(x) and max(x):
+        for b in t.encode_bipartitions():
+            x = (b._split_bitmask & b._tree_leafset_bitmask, (b._tree_leafset_bitmask ^ b._split_bitmask)& b._tree_leafset_bitmask)
+            if min(x) and max(x) and not b.is_trivial():
                 clade_weights[(min(x), max(x))] += 1
-
 
 def matches(a1, a2, b1, b2):
     if ((a1 & b1) == b1) and ((a1 & b2) == 0) and ((a2 & b2) != 0):
@@ -53,5 +55,5 @@ def adjust(n):
     
     print "Total weight", sum (clade_weights.values())
     print "Raw score", n
-    return sum(clade_weights.values()) - n
+    return (sum(clade_weights.values()) - n) * 2
 
