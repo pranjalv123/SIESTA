@@ -13,37 +13,23 @@ class Quintet:
         self.b = None
         self.c = None
         self.taxon_namespace = t.taxon_namespace
-        for e in t.internal_edges():
-            bm = e.leafset_bitmask
-            taxa = t.taxon_namespace.bitmask_taxa_list(bm)
-            if len(taxa) == 2 and (not self.a):
-                self.a = bm
-            elif len(taxa) == 2 and self.a:
-                self.b = bm
-                self.f = t.seed_node.leafset_bitmask
-                self.c = self.f ^ ( self.b | self.a )
-                return
-            elif len(taxa) == 3:
-                self.b = bm
-            elif len(taxa) == 5:
-                self.f = bm
-                
-        self.c = self.a ^ self.b
-        self.b = self.f ^ self.b
+        
+        childs = t.seed_node.child_nodes()
+        if len(childs[0].leaf_nodes()) < 3:
+            self.c = childs[0].leafset_bitmask
+            self.a = childs[1].child_nodes()[0].leafset_bitmask
+            self.b = childs[1].child_nodes()[1].leafset_bitmask
+        if len(childs[1].leaf_nodes()) < 3:
+            self.c = childs[1].leafset_bitmask
+            self.a = childs[0].child_nodes()[0].leafset_bitmask
+            self.b = childs[0].child_nodes()[1].leafset_bitmask
+
 
     def __repr__(self):
         return '\n'.join([str(self.taxon_namespace.bitmask_taxa_list(self.a)),str(self.taxon_namespace.bitmask_taxa_list(self.b)), str(self.taxon_namespace.bitmask_taxa_list(self.c))]) + '\n'
 
     def matches(self, a1, a2, rest):
         if ((a1 & self.a) == self.a) and ((a2 & self.b) == self.b) and ((rest & self.c) == self.c):
-            return True
-        if ((rest & self.a) == self.a) and ((a1 & self.b) == self.b) and ((a2 & self.c) == self.c):
-            return True
-        if ((a2 & self.a) == self.a) and ((rest & self.b) == self.b) and ((a1 & self.c) == self.c):
-            return True
-        if ((rest & self.a) == self.a) and ((a2 & self.b) == self.b) and ((a1 & self.c) == self.c):
-            return True
-        if ((a1 & self.a) == self.a) and ((rest & self.b) == self.b) and ((a2 & self.c) == self.c):
             return True
         if ((a2 & self.a) == self.a) and ((a1 & self.b) == self.b) and ((rest & self.c) == self.c):
             return True
@@ -64,7 +50,7 @@ def init(ts, opts):
     for line in open(args.quintets).readlines():
         quintet, weight = line.split(':')
         weight = float(weight)
-        quintet = dendropy.Tree.get_from_string(quintet + ';', 'newick', taxon_namespace=taxon_namespace, preserve_underscores=True)
+        quintet = dendropy.Tree.get_from_string(quintet + ';', 'newick', taxon_namespace=taxon_namespace, preserve_underscores=True, rooting='force-rooted')
         quintet.update_bipartitions()
         
             
@@ -79,7 +65,7 @@ def score(a1, a2, rest):
         if q.matches(a1, a2, rest):
             weight += w
 
-    print taxon_namespace.bitmask_taxa_list(a1), taxon_namespace.bitmask_taxa_list(a2), taxon_namespace.bitmask_taxa_list(rest), weight
+#    print taxon_namespace.bitmask_taxa_list(a1), taxon_namespace.bitmask_taxa_list(a2), taxon_namespace.bitmask_taxa_list(rest), weight
     return weight
 
 def adjust(n):
