@@ -21,6 +21,7 @@ private:
   vector<string> taxa;
   map<string, Taxon> index;
   map<clade_bitset, Clade&> clade_map;
+  bool frozen;
 public:
   clade_bitset taxa_bs;
 
@@ -29,6 +30,8 @@ public:
   int resize_clades(string str);
   
   void add_clade_taxa(string str, unordered_set<string>& taxa_set);
+
+  void freeze();
   
   Taxon operator[](const string& str) {
     return add(str);

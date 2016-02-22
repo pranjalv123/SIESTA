@@ -49,12 +49,13 @@ void CladeExtractor::get_from_cl() {
   }
 
   string astralfile;
+  string scoretree;
   
   if (Options::get("a astral", &astralfile)) {
     AstralInterface ai(astralfile);
     string genetreesfile;
     string extratreesfile;
-    string scoretree;
+
     Options::get("g genetrees", &genetreesfile);
    
     Options::get("e extragenetrees", &extratreesfile);
@@ -64,7 +65,10 @@ void CladeExtractor::get_from_cl() {
     } else if (Options::get("s score", &scoretree)) {
       INFO << "Scoring tree " << scoretree << endl;
       clade_stream << ai.getClades_limited(scoretree, extratreesfile);
-    }else {
+    } else if (Options::get("rootedscore", &scoretree)) {
+      INFO << "Scoring rooted tree " << scoretree << endl;
+      clade_stream << ai.getClades_limited(scoretree, extratreesfile);
+    } else {
       INFO << "Running ASTRAL in default mode  " << extratreesfile << endl;
       clade_stream << ai.getClades(genetreesfile, extratreesfile);
       if (Options::get("extraextra")) {
@@ -82,27 +86,47 @@ void CladeExtractor::get_from_cl() {
   }
 
   INFO << "Got clades as string!" << endl;
+
+  DEBUG << clade_stream.str() << endl;
   
   ts = new TaxonSet(clade_stream.str());
-
-  stringstream ss(clade_stream.str());
-  string s;
-  int n = 0;
-  while (!ss.eof()) {
-    getline(ss, s);
-    Clade c(*ts, s);
-    cl_clades.insert(c);
-    cl_cladetaxa.insert(c.taxa);
-    if (n % 10000 == 0) {
-      INFO << "Read " << n << "clades" << endl;
+  ts->freeze();
+  
+  if (Options::get("rootedscore", &scoretree)) {
+    ifstream f(scoretree);
+    string tree;
+    getline(f, tree);
+    unordered_set<Taxon> tt;
+    cl_clades = CladeExtractor::extract(*ts, tree, tt);
+    for (auto& clade: cl_clades) {
+      cl_cladetaxa.insert(clade.taxa);      
     }
-    n++;
+  }
 
+  else {
+    stringstream ss(clade_stream.str());
+    string s;
+    int n = 0;
+    while (!ss.eof()) {
+      getline(ss, s);
+      Clade c(*ts, s);
+      cl_clades.insert(c);
+      cl_cladetaxa.insert(c.taxa);
+      if (n % 10000 == 0) {
+	INFO << "Read " << n << "clades" << endl;
+      }
+      n++;
+
+    }
   }
 
   Clade alltaxa(*ts);
   for (size_t i = 0; i < ts->size(); i++) {
     alltaxa.add(i);
+    Clade single(*ts);
+    single.add(i);
+    cl_clades.insert(single);
+    cl_cladetaxa.insert(single.taxa);
   }
 
   cl_clades.insert(alltaxa);
@@ -110,6 +134,12 @@ void CladeExtractor::get_from_cl() {
   if (alltaxa.size() == 0) {
     ERR << "No clades found\n";
     exit(-1);
+  }
+  for (auto& clade: cl_clades) {
+    DEBUG << clade.str() << endl;
+    DEBUG << clade.taxa.str() << endl;
+    DEBUG << clade.taxa.data << endl;
+    DEBUG << (clade == alltaxa) << endl;
   }
 }
 

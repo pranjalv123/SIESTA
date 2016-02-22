@@ -2,9 +2,11 @@
 #include "Logger.hpp"
 #include <iostream>
 #include <cstring>
+#include <cassert>
 
 TaxonSet::TaxonSet(string str):
-  taxa_bs(resize_clades(str))
+  taxa_bs(resize_clades(str)),
+  frozen(false)
 {
   static int exists = 0;
   if (exists) {
@@ -23,6 +25,9 @@ TaxonSet::TaxonSet(string str):
   DEBUG << taxa_bs.str() << endl;
 }
 
+void TaxonSet::freeze() {
+  frozen = true;
+}
 
 int TaxonSet::resize_clades(string str) {
   stringstream stream(str);
@@ -52,6 +57,14 @@ void TaxonSet::add_clade_taxa(string str, unordered_set<string>& taxa_set) {
 Taxon TaxonSet::add(const string& str) {
   if (index.count(str)) {
     return index[str];
+  }
+
+  if (frozen) {
+    ERR << "Trying to add " << str << " to frozen taxon set\n";
+    for (const string& i : taxa_set) {
+      ERR << (i) << endl;
+    }  
+    assert(false);
   }
   int i = taxa.size();
   taxa.push_back(str);
