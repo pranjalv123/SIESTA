@@ -145,6 +145,10 @@ If `--extraextra` is also provided as an option, the ASTRAL expansion
 of the extra gene trees, as well as the ASTRAL expansion of the
 combination of the extra gene trees and the original gene trees.
 
+If `--limited` is provided as an option, the input gene tree set will
+not be expanded by ASTRAL. However, incomplete trees or trees with
+polytomies will still be completed or resolved.
+
 Finally, `-X cladefile` can be used to add clades/clusters to the
 search space. These should be comma-delimited lists surrounded by
 curly braces, e.g.

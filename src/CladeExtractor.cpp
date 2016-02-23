@@ -62,6 +62,9 @@ void CladeExtractor::get_from_cl() {
     if (Options::get("x exact")) {
       INFO << "Running ASTRAL in exact mode " << endl;
       clade_stream << ai.getClades_exact(genetreesfile, extratreesfile);
+    } else if (Options::get("limited")){
+      INFO << "Running ASTRAL in limited mode " << endl;
+      clade_stream << ai.getClades_limited(genetreesfile, extratreesfile);
     } else if (Options::get("s score", &scoretree)) {
       INFO << "Scoring tree " << scoretree << endl;
       clade_stream << ai.getClades_limited(scoretree, extratreesfile);
