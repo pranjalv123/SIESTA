@@ -55,7 +55,7 @@ def init(ts, opts):
         
             
         quintet_weights[Quintet(quintet)] = weight
-    print quintet_weights
+
     
 def score(a1, a2, rest):
     global taxon_namespace, quintet_weights

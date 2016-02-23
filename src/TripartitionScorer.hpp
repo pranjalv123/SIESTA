@@ -58,9 +58,9 @@ struct TripartitionScorerFactory {
     map_type::iterator it = getMap()->find(s);
     if(it == getMap()->end()) {
       map_type* mp = getMap();
-      ERR << "Valid criteria:" << endl;
+      INFO << "Valid criteria:" << endl;
       for (auto& i : *mp) {
-	ERR << i.first << endl;
+	INFO << i.first << endl;
       }
       return 0;
     }

@@ -40,7 +40,7 @@ string Options::str() {
 void Options::init(int argc_, char** argv_) {
 
   for (int i = 1; i < argc_; i++) {
-    cerr << i << " " << argv_[i] << endl;
+    //    cerr << i << " " << argv_[i] << endl;
     argv.push_back(string(argv_[i]));
     input += string(argv_[i]) + " ";
   }
@@ -51,7 +51,7 @@ void Options::init(int argc_, char** argv_) {
   
   for (string arg : argv) {
     option_type opttype = get_option_type(arg);
-    DEBUG << arg << " " <<  opttype << endl;
+    //    DEBUG << arg << " " <<  opttype << endl;
     switch(opttype) {
     case SHORT:
     case LONG:
@@ -76,10 +76,10 @@ void Options::init(int argc_, char** argv_) {
 
   }
 
-  DEBUG << "OPTIONS MAP:\n";
-  for (auto& kv : opts_map) {
-    DEBUG << kv.first << " = " << kv.second << endl;
-  }
+  // DEBUG << "OPTIONS MAP:\n";
+  // for (auto& kv : opts_map) {
+  //   DEBUG << kv.first << " = " << kv.second << endl;
+  // }
   
   inited = true;
 }

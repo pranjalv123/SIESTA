@@ -19,7 +19,6 @@ Logger::Logger() {
   string level;
   if (Options::inited) {
     Options::get("v verbose", &level);
-    cerr << "Options v verbose " << level << endl;
     getIlevel(level);
     setLevel(*this);
   }
@@ -94,7 +93,6 @@ void Logger::setLevel(Logger& logger) {
 
 void Logger::getIlevel(string& level) {
   ilevel = 0;
-  cerr << "level is " << level << endl;
   if (level == "")
     return;
   ilevel++;

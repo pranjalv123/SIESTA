@@ -131,6 +131,24 @@ BitVectorFixed BitVectorFixed::operator&(const BitVectorFixed& other) const {
   return output;
 }
 
+BitVectorFixed BitVectorFixed::operator|(const BitVectorFixed& other) const {
+  BitVectorFixed output(size);
+  for (size_t i = 0; i < cap; i++) {
+    output.data[i] = data[i] | other.data[i];
+  }
+  return output;
+}
+
+
+BitVectorFixed BitVectorFixed::operator^(const BitVectorFixed& other) const {
+  BitVectorFixed output(size);
+  for (size_t i = 0; i < cap; i++) {
+    output.data[i] = data[i] ^ other.data[i];
+  }
+  return output;
+}
+
+
 string BitVectorFixed::str() const {
   stringstream ss;
   for (int i = cap - 1; i >= 0; i--) {

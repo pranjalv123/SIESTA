@@ -39,6 +39,8 @@ public:
   
   bool operator== (const BitVectorFixed& other) const;
   BitVectorFixed operator&(const BitVectorFixed& other) const;
+  BitVectorFixed operator|(const BitVectorFixed& other) const;
+  BitVectorFixed operator^(const BitVectorFixed& other) const;
   BitVectorFixed operator~() const;
   
 };
