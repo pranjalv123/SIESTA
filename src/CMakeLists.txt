@@ -5,7 +5,7 @@ find_package(OpenMP)
 
 link_directories(/usr/local/lib )
 file(GLOB SOURCES *.cpp)
-add_definitions(-std=c++11 -g -O3 -Wall ${OpenMP_CXX_FLAGS})
+add_definitions(-std=c++14 -g -O3 -Wall ${OpenMP_CXX_FLAGS})
 
 option(ENABLE_PROFILING
   "Enable google profiler"
