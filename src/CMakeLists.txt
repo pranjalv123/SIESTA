@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (wASTRAL)
 
-find_package(OpenMP)
+find_package(OpenMP REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 
 link_directories(/usr/local/lib )
 file(GLOB SOURCES *.cpp)
@@ -12,7 +13,7 @@ option(ENABLE_PROFILING
   OFF)
 
 add_executable(wASTRAL ${SOURCES})
-target_link_libraries(wASTRAL pthread python2.7 ${OpenMP_CXX_FLAGS})
+target_link_libraries(wASTRAL pthread ${OpenMP_CXX_FLAGS} ${PYTHON_LIBRARIES})
 
 if(ENABLE_PROFILING)
   add_definitions(-DENABLE_PROFILING)
