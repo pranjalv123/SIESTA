@@ -13,6 +13,7 @@ PythonTripartitionScorer::PythonTripartitionScorer(TaxonSet& ts) :
   Py_Initialize();
   Options::get("p pythonfile", &pfile);
   DEBUG << "Python module: " << pfile << endl;
+  
   pName = PyString_FromString(pfile.c_str());
   pModule = PyImport_Import(pName);
   Py_DECREF(pName);
@@ -25,17 +26,20 @@ PythonTripartitionScorer::PythonTripartitionScorer(TaxonSet& ts) :
   pInitFn = PyObject_GetAttrString(pModule, "init");
   pAdjustFn = PyObject_GetAttrString(pModule, "adjust");
   pScoreFn = PyObject_GetAttrString(pModule, "score");
+  
   if (PyErr_Occurred())
     PyErr_Print();
 
   
+  assert(pInitFn);
   assert(pScoreFn);
+
 
   if (pInitFn && PyCallable_Check(pInitFn)) {
     DEBUG << "Executing init function" << endl;
 
 
-    PyObject *pArgs, *pTaxonSet;
+    PyObject *pArgs;
 
     PyObject *dendropy = PyImport_Import(PyString_FromString("dendropy"));
     assert(dendropy);
@@ -87,26 +91,34 @@ double PythonTripartitionScorer::score(const Tripartition& t)
 #pragma omp critical
   {
   PyObject *pArgs = PyTuple_New(3);
+  assert(pArgs);
+
   PyObject *val1 = _PyLong_FromByteArray((unsigned char*)t.a1.taxa.data, t.a1.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  Py_INCREF(val1);
+  assert(val1);
   PyTuple_SetItem(pArgs, 0, val1);
   PyObject *val2 = _PyLong_FromByteArray((unsigned char*)t.a2.taxa.data, t.a2.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  Py_INCREF(val2);
+  assert(val2);
   PyTuple_SetItem(pArgs, 1, val2);
   PyObject *val3 = _PyLong_FromByteArray((unsigned char*)t.rest.taxa.data, t.rest.taxa.cap*sizeof(*t.a2.taxa.data), 1, 0);
+  Py_INCREF(val3);
+  assert(val3);
   PyTuple_SetItem(pArgs, 2, val3);
   
   PyObject* retval = PyObject_CallFunction(pScoreFn, "O", pArgs);
+
   if (PyErr_Occurred()) {
     PyErr_Print();
     exit(1);
   }
 
   output = PyFloat_AsDouble(retval);
-  
   Py_DECREF(val1);
   Py_DECREF(val2);
   Py_DECREF(val3);
-  //Py_DECREF(pArgs);
-  //Py_DECREF(retval);
+  Py_DECREF(pArgs);
+  Py_DECREF(retval);
   }
   return output;
     
