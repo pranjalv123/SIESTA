@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <map>
+#include <shared_mutex>
 #include "Logger.hpp"
 #include "Clade.hpp"
 #include "Quartet.hpp"
@@ -44,6 +45,8 @@ protected:
 private:
   unordered_map <clade_bitset, double> score_map;
   unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
+
+  shared_timed_mutex rwlock;
 };
 
 //below is fun internal stuff 
