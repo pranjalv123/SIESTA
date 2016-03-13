@@ -22,7 +22,7 @@ double CladeSelector::run(bool invert) {
   }
 
   for (vector<Clade*> sublist : splitup) {
-    INFO << "Processing clades of size " << current_size << endl;
+    INFO << "Processing " << sublist.size() << " clades of size " << current_size << endl;
 #pragma omp parallel for
     for (size_t i = 0; i < sublist.size(); i++){
       Clade& clade = *(sublist[i]);
@@ -30,7 +30,7 @@ double CladeSelector::run(bool invert) {
       clade.score(scorer, clades, cladetaxa);
     }
     
-    INFO << "Finished processing clades of size " << current_size << endl;
+    DEBUG << "Finished processing clades of size " << current_size << endl;
     current_size++;
   }
 

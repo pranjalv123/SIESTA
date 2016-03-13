@@ -93,6 +93,7 @@ void CladeExtractor::get_from_cl() {
   DEBUG << clade_stream.str() << endl;
   
   ts = new TaxonSet(clade_stream.str());
+  INFO << ts->size() << " taxa" << endl;
   ts->freeze();
   
   if (Options::get("rootedscore", &scoretree)) {
@@ -116,13 +117,36 @@ void CladeExtractor::get_from_cl() {
       cl_clades.insert(c);
       cl_cladetaxa.insert(c.taxa);
       if (n % 10000 == 0) {
-	INFO << "Read " << n << "clades" << endl;
+	INFO << "Read " << n << " clades" << endl;
       }
       n++;
 
     }
+    INFO << "Read " << n << " clades" << endl;
   }
 
+
+  unordered_set<Clade> to_add;
+  
+  if (Options::get("enhance")) {
+    INFO << "Before enhancing: " << cl_clades.size() << endl;
+    for (const Clade& x: cl_clades) {
+      for (const Clade& y: cl_clades) {
+	if (x.contains(y) && (x.size() > y.size())) {
+	  to_add.insert(x.minus(y));
+	  if (to_add.size() % 10000 == 0) {
+	    INFO << "have " << to_add.size() << " clades" << endl;
+	  }
+	}
+      }
+    }
+    for (const Clade& x : to_add) {
+      cl_clades.insert(x);
+      cl_cladetaxa.insert(x.taxa);
+    }
+    INFO << "After enhancing: " << cl_clades.size() << endl;
+  }
+  
   Clade alltaxa(*ts);
   for (size_t i = 0; i < ts->size(); i++) {
     alltaxa.add(i);
@@ -131,7 +155,7 @@ void CladeExtractor::get_from_cl() {
     cl_clades.insert(single);
     cl_cladetaxa.insert(single.taxa);
   }
-
+  
   cl_clades.insert(alltaxa);
 
   if (alltaxa.size() == 0) {
