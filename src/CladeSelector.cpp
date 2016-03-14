@@ -1,13 +1,17 @@
 #include "CladeSelector.hpp"
 #include "Logger.hpp"
+#include "Options.hpp"
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#ifdef ENABLE_PROFILING
+#include <gperftools/profiler.h>
+#endif
 
 
 
 double CladeSelector::run(bool invert) {  
- 
+  bool profile = Options::get("profile");
   sort(clades.begin(), clades.end(), [](const Clade& a, const Clade& b){ return a.size() < b.size(); });
 
   INFO << "Scoring " << clades.size() << " clades" << endl;
@@ -29,7 +33,11 @@ double CladeSelector::run(bool invert) {
       DEBUG << clade.str() << endl;
       clade.score(scorer, clades, cladetaxa);
     }
-    
+    #ifdef ENABLE_PROFILING
+    if (profile)
+      ProfilerFlush();
+    #endif
+
     DEBUG << "Finished processing clades of size " << current_size << endl;
     current_size++;
   }

@@ -22,6 +22,8 @@ private:
 public:
   clade_bitset taxa;
   TaxonSet& ts;
+
+  int sz;
   
   Clade(TaxonSet& ts, string& str);
   Clade(TaxonSet& ts, clade_bitset& taxa);

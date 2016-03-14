@@ -56,7 +56,7 @@ string opts string* arg\n\
   
   string profilefile;
   
-  bool profile = Options::get("profile");
+  bool profile = Options::get("profile", &profilefile);
   string heuristic = "DPTripartitionScorer";
   Options::get("c criterion", &heuristic);
   

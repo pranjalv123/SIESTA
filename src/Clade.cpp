@@ -11,7 +11,8 @@
 
 Clade::Clade(TaxonSet& ts_, string& str) :
   taxa(ts_.size()),
-  ts(ts_)
+  ts(ts_),
+  sz(0)
 {
   char* cladestr = &(str[1]);
   char* token;
@@ -20,23 +21,27 @@ Clade::Clade(TaxonSet& ts_, string& str) :
   while((token = strtok_r(cladestr, ",} ", &saveptr))) {
     cladestr = NULL;
     add(ts[string(&(token[0]))]);
+    sz++;
   }
 }
 
 Clade::Clade(TaxonSet& ts_) :
   taxa(ts_.size()),
-  ts(ts_)
+  ts(ts_),
+  sz(0)
 {}
 
 Clade::Clade(TaxonSet& ts_, clade_bitset& taxa) :
   taxa(taxa),
-  ts(ts_)
+  ts(ts_),
+  sz(taxa.popcount())
 {
 }
 
 Clade::Clade(TaxonSet& ts_, unordered_set<Taxon>& taxa) :
   taxa(ts_.size()),
-  ts(ts_)
+  ts(ts_),
+  sz(taxa.size())
 {
   for (Taxon t : taxa) {
     add(t);
@@ -45,7 +50,8 @@ Clade::Clade(TaxonSet& ts_, unordered_set<Taxon>& taxa) :
 
 Clade::Clade(const Clade& other) :
   taxa(other.taxa),
-  ts(other.ts)
+  ts(other.ts),
+  sz(other.sz)
 {
 }
 
@@ -54,6 +60,7 @@ Clade::Clade(const Clade& other) :
 Clade& Clade::operator=(const Clade& other) {
    taxa = other.taxa;
    ts = other.ts;
+   sz = other.sz;
    return *this;
 }
 
@@ -133,8 +140,7 @@ Clade Clade::overlap(const Clade& other) const {
 }
 
 bool Clade::contains(const Clade& other) const {
-  BitVectorFixed overlap(other.taxa & taxa);
-  return overlap == other.taxa;
+  return (other.taxa & taxa) == other.taxa;
 }
 bool Clade::contains(const Taxon taxon) const {
   return taxa.get(taxon);
@@ -142,6 +148,7 @@ bool Clade::contains(const Taxon taxon) const {
 
 void Clade::add(const Taxon taxon) {
   taxa.set(taxon);
+  sz++;
 }
 
 Clade Clade::complement() const {
@@ -157,7 +164,7 @@ Clade Clade::minus(const Clade& other) const {
 }
 
 int Clade::size() const {
-  return taxa.popcount();
+  return sz;
 }
 
 double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset>& cladetaxa) {
