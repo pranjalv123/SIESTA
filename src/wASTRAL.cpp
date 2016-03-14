@@ -8,6 +8,7 @@
 #include "Logger.hpp"
 
 #include "RFTripartitionScorer.hpp"
+#include "FastRFTripartitionScorer.hpp"
 #include "DPTripartitionScorer.hpp"
 #include "BryantSteelTripartitionScorer.hpp"
 #include "PythonTripartitionScorer.hpp"

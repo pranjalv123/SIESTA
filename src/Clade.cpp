@@ -21,7 +21,6 @@ Clade::Clade(TaxonSet& ts_, string& str) :
   while((token = strtok_r(cladestr, ",} ", &saveptr))) {
     cladestr = NULL;
     add(ts[string(&(token[0]))]);
-    sz++;
   }
 }
 
@@ -140,7 +139,12 @@ Clade Clade::overlap(const Clade& other) const {
 }
 
 bool Clade::contains(const Clade& other) const {
-  return (other.taxa & taxa) == other.taxa;
+  bool status = 1;
+  for (size_t i = 0; i < taxa.cap; i++) {
+    status &= ((other.taxa.data[i] & taxa.data[i]) == other.taxa.data[i]);
+  }
+  
+  return status;
 }
 bool Clade::contains(const Taxon taxon) const {
   return taxa.get(taxon);
@@ -185,6 +189,7 @@ double Clade::score(TripartitionScorer& scorer, vector<Clade>& clades, unordered
   clade_bitset sub1(ts.size()), sub2(ts.size());
 
   int invert = 1;
+
   if (Options::get("maximize")) {
     invert = -1;
   }
@@ -229,15 +234,16 @@ Tripartition::Tripartition(TaxonSet& ts, Clade& clade, Clade& subclade) :
   a2(subclade),
   rest(clade.complement())
 {
-  assert(clade.contains(subclade));
+  // assert(clade.contains(subclade));
 
-  assert(a1.overlap(rest).size() == 0);
-  assert(a2.overlap(rest).size() == 0);
-  assert(a2.overlap(a1).size() == 0);
+  // assert(a1.overlap(rest).size() == 0);
+  // assert(a2.overlap(rest).size() == 0);
+  // assert(a2.overlap(a1).size() == 0);
 }
 
 void Clade::do_swap(Clade& other) {
   std::swap(taxa, other.taxa);
+  std::swap(sz, other.sz);
 }
 
 

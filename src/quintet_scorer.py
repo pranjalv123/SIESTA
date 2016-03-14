@@ -7,6 +7,8 @@ quintet_weights = defaultdict(lambda: 0)
 
 
 class Quintet:
+
+    # c is the partition above the node, a and b are the partitions under the node
     def __init__(self, t):
         t.update_bipartitions()
         self.a = None
@@ -24,6 +26,7 @@ class Quintet:
             self.a = childs[0].child_nodes()[0].leafset_bitmask
             self.b = childs[0].child_nodes()[1].leafset_bitmask
 
+        
 
     def __repr__(self):
         return '\n'.join([str(self.taxon_namespace.bitmask_taxa_list(self.a)),str(self.taxon_namespace.bitmask_taxa_list(self.b)), str(self.taxon_namespace.bitmask_taxa_list(self.c))]) + '\n'

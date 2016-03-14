@@ -94,7 +94,8 @@ namespace std {
       return bvf.hash() ;
     }
   };
-    template <> struct hash<Bipartition> {
+
+  template <> struct hash<Bipartition> {
     size_t operator()(const Bipartition& bp) const {
       return bp.hash();
     }

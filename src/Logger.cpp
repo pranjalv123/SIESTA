@@ -49,7 +49,7 @@ ostream& Logger::log(string tag, string fname, int lineno) {
 #if defined(__GNUC__) and __GNUC__ >= 5
     cerr << "[" << std::put_time(&time, "%d-%m-%Y %H:%M:%S") << "] " << tag << " {" << rindex(fname.c_str(), '/') + 1 << ":" << lineno << "} " ;
 #else
-    cerr << tag << " {" << rindex(fname.c_str(), '/') + 1 << ":" << lineno << "} " ;
+    cerr << '[' << ctime(t) << ']' << tag  << " {" << rindex(fname.c_str(), '/') + 1 << ":" << lineno << "} " ;
 #endif
     return cerr;
   }

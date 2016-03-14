@@ -162,12 +162,7 @@ void CladeExtractor::get_from_cl() {
     ERR << "No clades found\n";
     exit(-1);
   }
-  for (auto& clade: cl_clades) {
-    DEBUG << clade.str() << endl;
-    DEBUG << clade.taxa.str() << endl;
-    DEBUG << clade.taxa.data << endl;
-    DEBUG << (clade == alltaxa) << endl;
-  }
+
 }
 
 
