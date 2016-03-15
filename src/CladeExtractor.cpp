@@ -127,12 +127,17 @@ void CladeExtractor::get_from_cl() {
 
 
   unordered_set<Clade> to_add;
+
+  string enhancelevel_str;
+  int enhancelevel;
   
-  if (Options::get("enhance")) {
+  if (Options::get("enhance", &enhancelevel_str)) {
+    enhancelevel = atoi(enhancelevel_str.c_str());
     INFO << "Before enhancing: " << cl_clades.size() << endl;
+    INFO << "Adding clades of size at most " << enhancelevel << endl;
     for (const Clade& x: cl_clades) {
       for (const Clade& y: cl_clades) {
-	if (x.contains(y) && (x.size() > y.size())) {
+	if (x.contains(y) && (x.size() > y.size()) && (x.size() - y.size() < enhancelevel)) {
 	  to_add.insert(x.minus(y));
 	  if (to_add.size() % 10000 == 0) {
 	    INFO << "have " << to_add.size() << " clades" << endl;
