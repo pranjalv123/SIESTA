@@ -37,7 +37,7 @@ string Options::str() {
   return input;
 }
 
-void Options::init(int argc_, char** argv_) {
+void Options::init(int argc_, const char** argv_) {
 
   for (int i = 1; i < argc_; i++) {
     //    cerr << i << " " << argv_[i] << endl;

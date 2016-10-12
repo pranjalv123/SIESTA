@@ -6,10 +6,10 @@
 #include "AstralInterface.hpp"
 #include "Options.hpp"
 #include "Logger.hpp"
+#include "wASTRAL.hpp"
 
 #include "RFTripartitionScorer.hpp"
 #include "FastRFTripartitionScorer.hpp"
-#include "PythonTripartitionScorer.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -25,7 +25,7 @@ void test() {
   QuartetDict::test();
 }
 
-int main(int argc, char** argv) {
+int wASTRAL(int argc, const char** argv) {
 
   //parse the command-line arguments, set up the logger, set up profiling, ...
   

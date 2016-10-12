@@ -16,7 +16,7 @@ public:
   }
   
 
-  static void init(int argc, char** argv);
+  static void init(int argc, const char** argv);
 
   static string str();
   
