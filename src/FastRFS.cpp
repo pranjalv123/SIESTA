@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <cstdlib>
+#include <libgen.h>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ int main(int argc, char** argv) {
     if (string(argv[i]) == "-i") {
       assert(argc > i+1);
       i++;
-      input = string(realpath(argv[i], NULL));
+      input = string(argv[i]);
     }
     if (string(argv[i]) == "-o") {
       assert(argc > i+1);
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
   }
   
   wastral_args.push_back("-a");
-  wastral_args.push_back("astral.4.7.8.jar");
+  wastral_args.push_back(string(dirname(argv[0])) + "astral.4.7.8.jar");
   wastral_args.push_back("-c");
   wastral_args.push_back("FastRF");
   wastral_args.push_back("--maximize");
