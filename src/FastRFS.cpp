@@ -19,17 +19,17 @@ int main(int argc, char** argv) {
     if (string(argv[i]) == "-i") {
       assert(argc > i+1);
       i++;
-      input = argv[i];
+      input = string(realpath(argv[i], NULL));
     }
     if (string(argv[i]) == "-o") {
       assert(argc > i+1);
       i++;
-      output = argv[i];
+      output = string(realpath(argv[i], NULL));
     }
     if (string(argv[i]) == "-e") {
       assert(argc > i+1);
       i++;
-      extra = argv[i];
+      extra = string(realpath(argv[i], NULL));
     }
     if (string(argv[i]) == "--debug") {
       debug=1;
