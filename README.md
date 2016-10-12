@@ -1,5 +1,14 @@
 # FastRFS
 
+## Getting help with FastRFS
+If you're having problems with FastRFS, you can:
+
+Join the user group at https://groups.google.com/forum/#!forum/fastrfs-users/
+
+File an issue on GitHub
+
+Email me: vachasp2 at illinois dot edu
+
 ## Running FastRFS 
 
 Download the FastRFS executable from the Releases page (https://github.com/pranjalv123/FastRFS/releases). 
