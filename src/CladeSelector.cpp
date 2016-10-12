@@ -27,7 +27,7 @@ double CladeSelector::run(bool invert) {
 
   for (vector<Clade*> sublist : splitup) {
     INFO << "Processing " << sublist.size() << " clades of size " << current_size << endl;
-#pragma omp parallel for
+
     for (size_t i = 0; i < sublist.size(); i++){
       Clade& clade = *(sublist[i]);
       DEBUG << clade.str() << endl;
