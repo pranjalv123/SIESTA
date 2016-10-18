@@ -47,8 +47,6 @@ public:
 
     
     TaxonSet ts(ntaxa);
-
-    cout << ntaxa << " taxa" << endl;
     
     string s = "java -jar " + astralPath + " -i " + remapped_treefile(genetreefile, ts) + " -k searchspace_norun -o /dev/null";
     if (exact) {
@@ -86,6 +84,7 @@ public:
       getline(cladestream_mapped, line);
       unmapped << unmap_clade_names(line, ts) << endl;
     }
+
     
     return unmapped.str();
   }
