@@ -4,10 +4,9 @@
 
 #include <unordered_map>
 #include <map>
-#include <shared_mutex>
-#include "Logger.hpp"
-#include "Clade.hpp"
-#include "Quartet.hpp"
+#include <Logger.hpp>
+#include <Clade.hpp>
+#include <Quartet.hpp>
 
 using namespace std;
 
@@ -18,35 +17,6 @@ namespace std {
       return hash<T>()(x.first) ^ hash<U>()(x.second);
     }
   };
-};
-
-
-/****
-This is the base (pure virtual) TripartitionScorer class. Children
-need to implement score(const Tripartition& t).
- ****/
-class TripartitionScorer {
-public:
-  //Returns the score of a tripartition
-  virtual double score(const Tripartition& t)=0;
-  virtual double adjust_final_score(double score);
-
-  // these are used internally by the DP algorithm
-  double get_score(clade_bitset& clade);
-  void set_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2);
-  pair<clade_bitset, clade_bitset>& get_subclades(clade_bitset& clade, vector<Clade>& clades);
-  TripartitionScorer(TaxonSet& ts) : ts(ts) {
-    Clade ec(ts);
-    score_map[ec.get_taxa()] = 0;
-    subclade_map.emplace(ec.get_taxa(), make_pair(ec.get_taxa(), ec.get_taxa()));
-  }
-protected:
-  TaxonSet& ts;
-private:
-  unordered_map <clade_bitset, double> score_map;
-  unordered_map <clade_bitset, pair<clade_bitset, clade_bitset> > subclade_map;
-
-  shared_timed_mutex rwlock;
 };
 
 //below is fun internal stuff 

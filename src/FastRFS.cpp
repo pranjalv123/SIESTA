@@ -43,17 +43,18 @@ int main(int argc, char** argv) {
   }
   
   wastral_args.push_back("-a");
-  wastral_args.push_back(string(dirname(argv[0])) + "astral.4.7.8.jar");
+  wastral_args.push_back(string(dirname(argv[0])) + "/astral.4.7.8.jar");
   wastral_args.push_back("-c");
   wastral_args.push_back("FastRF");
   wastral_args.push_back("--maximize");
   
   wastral_args.push_back("-g");
   wastral_args.push_back(input);
-
+  wastral_args.push_back("--verbose");
   if (debug) {
-    wastral_args.push_back("--verbose");
     wastral_args.push_back("debug");
+  } else {
+    wastral_args.push_back("progress");
   }
   
   if (extra.size()) {

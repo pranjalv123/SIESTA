@@ -61,21 +61,21 @@ void CladeExtractor::get_from_cl() {
     Options::get("e extragenetrees", &extratreesfile);
     if (Options::get("x exact")) {
       INFO << "Running ASTRAL in exact mode " << endl;
-      clade_stream << ai.getClades_exact(genetreesfile, extratreesfile);
+      clade_stream << ai.getClades(genetreesfile, extratreesfile, true, false);
     } else if (Options::get("limited")){
       INFO << "Running ASTRAL in limited mode " << endl;
-      clade_stream << ai.getClades_limited(genetreesfile, extratreesfile);
+      clade_stream << ai.getClades(genetreesfile, extratreesfile, false, true);
     } else if (Options::get("s score", &scoretree)) {
       INFO << "Scoring tree " << scoretree << endl;
-      clade_stream << ai.getClades_limited(scoretree, extratreesfile);
+      clade_stream << ai.getClades(scoretree, extratreesfile, false, true);
     } else if (Options::get("rootedscore", &scoretree)) {
       INFO << "Scoring rooted tree " << scoretree << endl;
-      clade_stream << ai.getClades_limited(scoretree, extratreesfile);
+      clade_stream << ai.getClades(scoretree, extratreesfile, false, true);
     } else {
       INFO << "Running ASTRAL in default mode  " << extratreesfile << endl;
-      clade_stream << ai.getClades(genetreesfile, extratreesfile);
+      clade_stream << ai.getClades(genetreesfile, extratreesfile, false, false);
       if (Options::get("extraextra")) {
-	clade_stream << ai.getClades(extratreesfile, "");
+	clade_stream << ai.getClades(extratreesfile, "", false, false);
 	string fname = tmpnam(0);
 	DEBUG << "Getting lots more clades " << fname << endl;
 	ofstream fs(fname);
@@ -83,7 +83,7 @@ void CladeExtractor::get_from_cl() {
 	ifstream extrastream(extratreesfile);
 	fs << gtstream.rdbuf() << '\n' << extrastream.rdbuf() << endl;
 	fs.flush();
-	clade_stream  << ai.getClades(fname, "");
+	clade_stream  << ai.getClades(fname, "", false, false);
       }
     }
   }

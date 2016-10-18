@@ -2,78 +2,94 @@
 #define ASTRAL_INTERFACE_HPP__
 
 #include "Logger.hpp"
+#include <newick.hpp>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 class AstralInterface {
 private:
   string astralPath;
 public:
+   string remapped_treefile(string& input, TaxonSet& ts) {
+    string line;
+    ifstream ifile(input);
+    
+    char name[] = "/tmp/fileXXXXXX";
+    mkstemp(name);
+
+    ofstream of(name);
+    while(!ifile.eof()) {
+      getline(ifile, line);
+      if (line.size())
+	of << map_newick_names(line, ts) << endl;
+    }
+    
+    return name;
+  }
+  
   AstralInterface(string astralPath) : astralPath(astralPath) {}
-  string getClades(string genetreefile, string extratreesfile) {
-    string s = "java -jar " + astralPath + " -i " + genetreefile + " -k searchspace_norun -o /dev/null";
+  string getClades(string genetreefile, string extratreesfile, bool exact, bool limited) {
+    unordered_set<string> taxa;
+    char buffer[128];
+    stringstream gtrees_stream;
+
+
+    FILE* gtrees_file_stream = fopen(genetreefile.c_str(), "r");
+       
+    while (!feof(gtrees_file_stream)) {
+      if (fgets(buffer, 128, gtrees_file_stream) != NULL) {
+	gtrees_stream << buffer;
+      }
+    }
+
+    int ntaxa = newick_to_ts(gtrees_stream.str(), taxa);
+
+    
+    TaxonSet ts(ntaxa);
+
+    cout << ntaxa << " taxa" << endl;
+    
+    string s = "java -jar " + astralPath + " -i " + remapped_treefile(genetreefile, ts) + " -k searchspace_norun -o /dev/null";
+    if (exact) {
+      s += " -x ";
+    }
+    if (limited) {
+      s += " -p0 ";
+    }
     if (extratreesfile.size()) {
-      s += " -e " + extratreesfile;
+      s += " -e " + remapped_treefile(extratreesfile, ts);
     }
     if (!Logger::isEnabled("DEBUG") )
 	s += " 2> /dev/null";
 
     PROGRESS << "Running ASTRAL to get clade set" << endl;
-    DEBUG << "Using command line " << s << endl;
+    PROGRESS << "Using command line " << s << endl;
+
+    
     
     FILE* stream = popen(s.c_str(), "r");
-    char buffer[128];
+
     stringstream result;
     while(!feof(stream)) {
       if(fgets(buffer,128,stream) != NULL) {
 	result << buffer;
       }
     }
-    return result.str();
-  }
 
-  string getClades_exact(string genetreefile, string extratreesfile) {
-    string s = "java -jar " + astralPath + " -x -i " + genetreefile + " -k searchspace_norun -o /dev/null";
-    if (extratreesfile.size()) {
-      s += " -e " + extratreesfile;
-    }
-    if (!Logger::isEnabled("DEBUG") )
-	s += " 2> /dev/null";
+    stringstream cladestream_mapped(result.str());
+    string line;
 
-    PROGRESS << "Running ASTRAL in exact mode to get clade set" << endl;
-    DEBUG << "Using command line " << s << endl;
+    stringstream unmapped;
     
-    FILE* stream = popen(s.c_str(), "r");
-    char buffer[128];
-    stringstream result;
-    while(!feof(stream)) {
-      if(fgets(buffer,128,stream) != NULL) {
-	result << buffer;
-      }
+    while (!cladestream_mapped.eof()) {
+      getline(cladestream_mapped, line);
+      unmapped << unmap_clade_names(line, ts) << endl;
     }
-    return result.str();
-  }
-
-  
-  string getClades_limited(string genetreefile, string extratreesfile) {
-    string s = "java -jar " + astralPath + " -p0 -i " + genetreefile + " -k searchspace_norun -o /dev/null";
-    if (extratreesfile.size()) {
-      s += " -e " + extratreesfile;
-    }
-    if (!Logger::isEnabled("DEBUG") )
-	s += " 2> /dev/null";
-
-    PROGRESS << "Running ASTRAL in limited mode to get clade set" << endl;
-    DEBUG << "Using command line " << s << endl;
     
-    FILE* stream = popen(s.c_str(), "r");
-    char buffer[128];
-    stringstream result;
-    while(!feof(stream)) {
-      if(fgets(buffer,128,stream) != NULL) {
-	result << buffer;
-      }
-    }
-    return result.str();
+    return unmapped.str();
   }
+
 };
 
 #endif

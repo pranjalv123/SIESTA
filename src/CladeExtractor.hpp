@@ -2,8 +2,8 @@
 #define CLADE_EXTRACTOR__
 #include <vector>
 #include <string>
-#include "Clade.hpp"
-#include "Options.hpp"
+#include <Clade.hpp>
+#include <Options.hpp>
 
 using namespace std;
 

@@ -115,5 +115,5 @@ string opts string* arg\n\
     }
   }
   
-  
+  return 0;
 }
