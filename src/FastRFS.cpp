@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
     if (string(argv[i]) == "-o") {
       assert(argc > i+1);
       i++;
+      fclose(fopen(argv[i], "a"));
       output = string(realpath(argv[i], NULL));
     }
     if (string(argv[i]) == "-e") {
