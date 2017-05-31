@@ -14,10 +14,10 @@ option(ENABLE_PROFILING
   "Enable google profiler"
   OFF)
 
-add_executable(FastRFS ${SOURCES} FastRFS/FastRFS.cpp)
+add_executable(FastRFS ${SOURCES} exec/FastRFS.cpp)
 target_link_libraries(FastRFS phylokit )
 
-add_executable(wASTRAL ${SOURCES} wASTRAL/wASTRAL.cpp)
+add_executable(wASTRAL ${SOURCES} exec/wASTRAL.cpp)
 target_link_libraries(wASTRAL phylokit )
 
 
