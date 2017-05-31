@@ -8,8 +8,8 @@ public:
   DEC_SCORER(RFTripartitionScorer);
   RFTripartitionScorer(TaxonSet& ts);
   int addSourceTree(string tree);
-  virtual double score (const Tripartition& t);
-  bool matches(const Tripartition& t, const Bipartition& bp);
+  virtual double score (const Tripartition<ScorableClade>& t);
+  bool matches(const Tripartition<ScorableClade>& t, const Bipartition& bp);
   int total_weight;
   int n_trees;
   virtual double adjust_final_score(double score);

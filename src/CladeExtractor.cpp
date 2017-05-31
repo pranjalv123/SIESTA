@@ -162,7 +162,7 @@ void CladeExtractor::get_from_cl() {
   }
   
   cl_clades.insert(alltaxa);
-
+  INFO << "Total clades: " << cl_clades.size() << endl;
   if (alltaxa.size() == 0) {
     ERR << "No clades found\n";
     exit(-1);

@@ -5,6 +5,7 @@
 #include <newick.hpp>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 #include <sstream>
 
 class AstralInterface {
@@ -36,7 +37,9 @@ public:
 
 
     FILE* gtrees_file_stream = fopen(genetreefile.c_str(), "r");
-       
+
+    assert(gtrees_file_stream);
+    
     while (!feof(gtrees_file_stream)) {
       if (fgets(buffer, 128, gtrees_file_stream) != NULL) {
 	gtrees_stream << buffer;

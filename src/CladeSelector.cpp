@@ -1,4 +1,5 @@
 #include "CladeSelector.hpp"
+#include "ScorableClade.hpp"
 #include "Logger.hpp"
 #include "Options.hpp"
 #include <algorithm>
@@ -10,28 +11,41 @@
 
 
 
-double CladeSelector::run(bool invert) {  
+double BasicCladeSelector::run(bool invert, twod_mat* mat) {
+#ifdef ENABLE_PROFILING
   bool profile = Options::get("profile");
-  sort(clades.begin(), clades.end(), [](const Clade& a, const Clade& b){ return a.size() < b.size(); });
+#endif
 
+  unordered_map<clade_bitset, int> clade_indices;
+  
+  INFO << "Sorting " << clades.size() << " clades" << endl;
+
+  sort(clades.begin(), clades.end(), [](const ScorableClade& a, const ScorableClade& b){ return a.size() < b.size(); });
+  
+  
+  for ( size_t i = 0; i < clades.size(); i++ ) {
+    clades[i].myIndex = i;
+    clade_indices[clades[i].taxa] = i;
+  }
+  
   INFO << "Scoring " << clades.size() << " clades" << endl;
 
 
   int current_size = 0;
 
-  vector<vector<Clade*> > splitup(clades[clades.size()-1].size() + 1);
-
-  for (Clade& c: clades) {
+  vector<vector<ScorableClade*> > splitup(clades[clades.size()-1].size() + 1);
+  
+  for (ScorableClade& c: clades) {
     splitup.at(c.size()).push_back(&c);
   }
 
-  for (vector<Clade*> sublist : splitup) {
+  for (vector<ScorableClade*> sublist : splitup) {
     INFO << "Processing " << sublist.size() << " clades of size " << current_size << endl;
 
-    for (size_t i = 0; i < sublist.size(); i++){
-      Clade& clade = *(sublist[i]);
+    for (size_t i = 0; i < sublist.size(); i++) {
+      ScorableClade& clade = *(sublist[i]);
       DEBUG << clade.str() << endl;
-      clade.score(scorer, clades, cladetaxa);
+      clade.score(scorer, clades, clade_indices, mat);
     }
     #ifdef ENABLE_PROFILING
     if (profile)
@@ -44,15 +58,19 @@ double CladeSelector::run(bool invert) {
 
   
   
-  double score = clades.back().score(scorer, clades, cladetaxa);
+  double score = clades.back().score(scorer, clades, clade_indices, mat);
   if (invert) { score = -score; }
   //BOOST_LOG_TRIVIAL(info) << "Score: " << format("%f") % score;
-  cout << "Score: " << scorer.adjust_final_score(score) << endl;
+  cout << "Score: " << (int) scorer.adjust_final_score(score) << endl;
   newick_tree = clades.back().newick_str(scorer, clades) ;
   cout << "Tree: " << newick_tree << endl;
   
   return score;
 }
+
+
+
+
 
 
 

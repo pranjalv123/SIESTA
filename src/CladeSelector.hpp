@@ -2,29 +2,33 @@
 #define CLADE_SELECTOR_HPP__
 
 #include "TripartitionScorer.hpp"
+#include "ScorableClade.hpp"
 #include <unordered_set>
 
-class CladeTreeNode {
-  
-};
-
 class CladeSelector {
+protected:
   TripartitionScorer& scorer;
-  vector<Clade>& clades;
+  vector<ScorableClade>& clades;
   unordered_set<clade_bitset >& cladetaxa;
   TaxonSet& ts;
 
   
 public:
-  CladeSelector(TaxonSet& ts, TripartitionScorer& scorer, vector<Clade>& clades, unordered_set<clade_bitset >& cladetaxa):
+  CladeSelector(TaxonSet& ts, TripartitionScorer& scorer, vector<ScorableClade>& clades, unordered_set<clade_bitset >& cladetaxa):
     scorer(scorer),
     clades(clades),
     cladetaxa(cladetaxa),
     ts(ts)
   {}
 
-  double run(bool invert);
+  virtual double run(bool invert, twod_mat* mat) = 0;
   string newick_tree;
+};
+
+class BasicCladeSelector : public CladeSelector {
+public:
+  using CladeSelector::CladeSelector;
+  virtual double run(bool invert, twod_mat* mat);
 };
 
 #endif

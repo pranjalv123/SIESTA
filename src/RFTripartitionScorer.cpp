@@ -47,7 +47,7 @@ int RFTripartitionScorer::addSourceTree(string tree) {
   return n;
 }
 
-bool RFTripartitionScorer::matches(const Tripartition& t, const Bipartition& bp) {
+bool RFTripartitionScorer::matches(const Tripartition<ScorableClade>& t, const Bipartition& bp) {
 
   if (t.a1.contains(bp.a1) && (t.a1.overlap(bp.a2).size() == 0) && (t.a2.overlap(bp.a2).size() > 0)) {
     //    DEBUG << "match 1\n";
@@ -71,7 +71,7 @@ bool RFTripartitionScorer::matches(const Tripartition& t, const Bipartition& bp)
   return false;
 }
 
-double RFTripartitionScorer::score(const Tripartition& t) {
+double RFTripartitionScorer::score(const Tripartition<ScorableClade>& t) {
   double weight = 0;
   for (auto& i: clade_weights) {
     const Bipartition& bp = i.first;

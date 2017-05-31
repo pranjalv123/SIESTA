@@ -43,7 +43,7 @@ FastRFTripartitionScorer::FastRFTripartitionScorer(TaxonSet& ts) :
     BitVectorFixed& bvf_b1 = (*(possibleB1.emplace(clade, weights.size()).first)).second;
     BitVectorFixed& bvf_b2 = (*(possibleB2.emplace(clade, weights.size()).first)).second;
     
-    for (int i = 0; i < bipartitions.size(); i++) {
+    for (unsigned int i = 0; i < bipartitions.size(); i++) {
       const Bipartition& bp = *(bipartitions[i]);
       if (clade.contains(bp.a1) && clade.overlap(bp.a2).size() == 0) {
 	bvf_a1.set(i);
@@ -85,7 +85,7 @@ int FastRFTripartitionScorer::addSourceTree(string tree) {
   return n;
 }
 
-bool FastRFTripartitionScorer::matches(const Tripartition& t, const Bipartition& bp) {
+bool FastRFTripartitionScorer::matches(const Tripartition<ScorableClade>& t, const Bipartition& bp) {
 
   if (t.a1.contains(bp.a1) && (t.a1.overlap(bp.a2).size() == 0) && (t.a2.overlap(bp.a2).size() > 0)) {
     //    DEBUG << "match 1\n";
@@ -109,7 +109,7 @@ bool FastRFTripartitionScorer::matches(const Tripartition& t, const Bipartition&
   return false;
 }
 
-double FastRFTripartitionScorer::score(const Tripartition& t) {
+double FastRFTripartitionScorer::score(const Tripartition<ScorableClade>& t) {
   double weight = 0;
 
   BitVectorFixed& t1_a1 = possibleA1.at(t.a1);
