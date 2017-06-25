@@ -44,7 +44,7 @@ double BasicCladeSelector::run(bool invert, twod_mat* mat) {
 
     for (size_t i = 0; i < sublist.size(); i++) {
       ScorableClade& clade = *(sublist[i]);
-      DEBUG << clade.str() << endl;
+      //      DEBUG << clade.str() << endl;
       clade.score(scorer, clades, clade_indices, mat);
     }
     #ifdef ENABLE_PROFILING
@@ -61,7 +61,7 @@ double BasicCladeSelector::run(bool invert, twod_mat* mat) {
   double score = clades.back().score(scorer, clades, clade_indices, mat);
   if (invert) { score = -score; }
   //BOOST_LOG_TRIVIAL(info) << "Score: " << format("%f") % score;
-  cout << "Score: " << (int) scorer.adjust_final_score(score) << endl;
+  cout << "Score: " << scorer.adjust_final_score(score) << endl;
   newick_tree = clades.back().newick_str(scorer, clades) ;
   cout << "Tree: " << newick_tree << endl;
   

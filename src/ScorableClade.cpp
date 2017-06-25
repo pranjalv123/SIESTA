@@ -187,7 +187,10 @@ double ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordere
 
     ScorableClade c1(ts, subclades.first);
     ScorableClade c2(ts, subclades.second);
-
+    DEBUG << size() << "\t" << c1.size() << "\t" << c2.size() << endl;
+    assert(c1.size() < size());
+    assert(c2.size() < size());
+    assert(c1.size() + c2.size() == size());
     count += c1.optimal_subtree_count(scorer, cache) * c2.optimal_subtree_count(scorer, cache);
     
   }
@@ -195,7 +198,7 @@ double ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordere
   return count;
 }
 
-double ScorableClade::appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& count_cache) { 
+double ScorableClade::appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& count_cache) const { 
 
   return count_cache[taxa] * count_cache[complement().taxa];
 }
@@ -246,8 +249,12 @@ vector<string> ScorableClade::all_newick_strs(TripartitionScorer& scorer, vector
 
 
 
+
   vector<pair<clade_bitset, clade_bitset> >& subclades_list = scorer.get_subclade_lists(taxa);
 
+  if (size() == ts.size()) {
+    subclades_list.erase(subclades_list.begin() + 1, subclades_list.end());
+  }
   
   for (auto& subclades : subclades_list) {
 
@@ -310,7 +317,10 @@ double ScorableClade::score(TripartitionScorer& scorer, vector<ScorableClade>& c
     scorer.set_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
   }
   else {
+    vector<double> values(clades.size());
+    DEBUG << "scoring: " << taxa.str() << endl;
     for (size_t i = 0; i < clades.size(); i++) {
+      values[i] = (double)nan("");
       ScorableClade& subclade = clades[i];
       if (subclade.size() >= size() || !contains(subclade) || subclade.size() == 0 )
 	continue;
@@ -320,28 +330,36 @@ double ScorableClade::score(TripartitionScorer& scorer, vector<ScorableClade>& c
       if (clade_indices.count(tp.a1.taxa) == 0 || clade_indices.count(tp.a2.taxa) == 0)
 	continue;
 
-      
       double score = invert * scorer.score(tp) + tp.a1.score(scorer, clades, clade_indices, mat) + tp.a2.score(scorer, clades, clade_indices, mat);
+      values[i] = score;
       if (std::isnan(value) || (score < value) ) {
+	
+	
 	value = score;
 	sub1 = tp.a1.taxa;
 	sub2 = tp.a2.taxa;
+	
+	
+	DEBUG << "value: " << fixed << value << "\t" << score << "\t" << values[i] << endl;
       }
       if (mat) {
 	(*mat)[clade_indices[taxa]][clade_indices[tp.a1.taxa]] = score;
 	(*mat)[clade_indices[taxa]][clade_indices[tp.a2.taxa]] = score;
       }
     }
-    if (mat) {
-      for (int i = 0; i < clade_indices[taxa]; i++) {
-	if ((*mat)[clade_indices[taxa]][i] == value) {
-	  Tripartition<ScorableClade> tp(ts, *this, clades[i]);
-	  if (tp.a1.taxa.ffs() > tp.a2.taxa.ffs()) {
-	    scorer.add_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
-	  }
+    for (int i = 0; i < clade_indices[taxa]; i++) {
+      if (values[i] == value) {
+	Tripartition<ScorableClade> tp(ts, *this, clades[i]);
+
+	if (tp.a1.taxa.ffs() > tp.a2.taxa.ffs()) {
+	  DEBUG << str() << clades[i].str() << endl;
+	  DEBUG << str() << " "  << tp.a1.str() << " " << tp.a2.str() << endl;	  
+	  assert(tp.a1.size() + tp.a2.size() == size());
+	  scorer.add_score(taxa, value, tp.a1.taxa, tp.a2.taxa);
 	}
-      }
+      }       
     }
+    DEBUG << scorer.get_subclade_lists(taxa).size() << endl;
     scorer.set_score(taxa, value, sub1, sub2);    
   }
   

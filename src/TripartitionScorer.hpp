@@ -35,6 +35,7 @@ public:
   double get_score(clade_bitset& clade);
   void set_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2);
   void add_score(clade_bitset& clade, double score, clade_bitset& a1, clade_bitset& a2);
+  void clear_scores(clade_bitset& clade);
   pair<clade_bitset, clade_bitset>& get_subclades(clade_bitset& clade, vector<ScorableClade>& clades);
   vector<pair<clade_bitset, clade_bitset> >& get_subclade_lists(clade_bitset& clade);
     

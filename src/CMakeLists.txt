@@ -14,22 +14,27 @@ option(ENABLE_PROFILING
   "Enable google profiler"
   OFF)
 
-add_executable(FastRFS ${SOURCES} exec/FastRFS.cpp)
+add_executable(FastRFS ${SOURCES} FastRFS/FastRFS.cpp)
 target_link_libraries(FastRFS phylokit )
 
-add_executable(wASTRAL ${SOURCES} exec/wASTRAL.cpp)
+add_executable(wASTRAL ${SOURCES} wASTRAL/main.cpp)
 target_link_libraries(wASTRAL phylokit )
 
 
 if(ENABLE_PROFILING)
   add_definitions(-DENABLE_PROFILING)
   target_link_libraries(FastRFS profiler)
+  target_link_libraries(wASTRAL profiler)
+  add_definitions(-fPIC)
 endif(ENABLE_PROFILING)
 
 if(UNIX)
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  SET(BUILD_SHARED_LIBRARIES OFF)
-  SET(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
+  
+  if (NOT ENABLE_PROFILING)
+     SET(BUILD_SHARED_LIBRARIES OFF)	
+     SET(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
+  endif()
 endif()
 
 install(TARGETS FastRFS wASTRAL

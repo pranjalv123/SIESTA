@@ -29,6 +29,11 @@ void TripartitionScorer::add_score(clade_bitset& clade, double score, clade_bits
   subclade_list_map[clade].emplace_back(make_pair(a1, a2));
 }
 
+void TripartitionScorer::clear_scores(clade_bitset& clade) {
+  DEBUG << "CLEARING " << clade.str() << endl;
+  subclade_list_map[clade].clear();
+}
+
 
 pair<clade_bitset, clade_bitset>& TripartitionScorer::get_subclades(clade_bitset& clade, vector<ScorableClade>& clades) {
   if(subclade_map.count(clade) == 0){

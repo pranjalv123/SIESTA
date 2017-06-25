@@ -31,7 +31,7 @@ public:
 
   double optimal_subtree_count(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& cache);
   double defective_subtree_count(TripartitionScorer& scorer, twod_mat& mat, vector<ScorableClade>& clades, unordered_map<clade_bitset, int>& clade_indices, double defect, unordered_map< clade_bitset, unordered_map<double, double > >& cache);
-  double appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& count_cache);
+  double appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& count_cache) const;
   double appearances_in_defective_trees(TripartitionScorer& scorer, double defect, unordered_map<clade_bitset, unordered_map<double, double> >& defective_cache);
 
   double score(TripartitionScorer& scorer, vector<ScorableClade>& clades, unordered_map<clade_bitset, int>& cladetaxa, twod_mat* mat);
