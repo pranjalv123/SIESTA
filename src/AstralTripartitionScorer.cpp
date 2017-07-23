@@ -1,7 +1,7 @@
 #include "TripartitionScorer.hpp"
 #include "AstralTripartitionScorer.hpp"
 #include "CladeExtractor.hpp"
-#include "Logger.hpp"
+#include "util/Logger.hpp"
 
 #include <newick.hpp>
 #include <BitVector.hpp>

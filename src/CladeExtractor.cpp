@@ -1,6 +1,6 @@
 #include "CladeExtractor.hpp"
 #include "TaxonSet.hpp"
-#include "Logger.hpp"
+#include <util/Logger.hpp>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
-#include "Logger.hpp"
+#include <util/Logger.hpp>
 #include "AstralInterface.hpp"
 
 unordered_set<Clade> CladeExtractor::cl_clades;

@@ -1,6 +1,6 @@
 #include "TripartitionScorer.hpp"
 #include "CladeExtractor.hpp"
-#include "Logger.hpp"
+#include <util/Logger.hpp>
 
 #include <limits>
 #include <fstream>

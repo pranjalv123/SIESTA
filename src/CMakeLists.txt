@@ -14,8 +14,8 @@ option(ENABLE_PROFILING
   "Enable google profiler"
   OFF)
 
-add_executable(FastRFS ${SOURCES} FastRFS/FastRFS.cpp)
-target_link_libraries(FastRFS phylokit )
+#add_executable(FastRFS ${SOURCES} FastRFS/FastRFS.cpp)
+#target_link_libraries(FastRFS phylokit )
 
 add_executable(wASTRAL ${SOURCES} wASTRAL/main.cpp)
 target_link_libraries(wASTRAL phylokit )
@@ -23,8 +23,8 @@ target_link_libraries(wASTRAL phylokit )
 
 if(ENABLE_PROFILING)
   add_definitions(-DENABLE_PROFILING)
-  target_link_libraries(FastRFS profiler)
-  target_link_libraries(wASTRAL profiler)
+#  target_link_libraries(FastRFS profiler)
+#  target_link_libraries(wASTRAL profiler)
   add_definitions(-fPIC)
 endif(ENABLE_PROFILING)
 
@@ -37,5 +37,5 @@ if(UNIX)
   endif()
 endif()
 
-install(TARGETS FastRFS wASTRAL
+install(TARGETS  wASTRAL
 		RUNTIME DESTINATION bin)

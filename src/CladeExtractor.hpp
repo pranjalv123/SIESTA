@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <Clade.hpp>
-#include <Options.hpp>
+#include <util/Options.hpp>
 
 using namespace std;
 

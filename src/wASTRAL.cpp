@@ -4,8 +4,8 @@
 #include "CladeSelector.hpp"
 #include "TripartitionScorer.hpp"
 #include "AstralInterface.hpp"
-#include "Options.hpp"
-#include "Logger.hpp"
+#include <util/Options.hpp>
+#include <util/Logger.hpp>
 #include "wASTRAL.hpp"
 
 #include "RFTripartitionScorer.hpp"
@@ -119,7 +119,7 @@ string opts string* arg\n\
   double score = cs.run(maximize, scoremat);
   string consensus_tree;
 
-  double count=0, ntrees=0, defective=0;
+  __int128 count=0, ntrees=0, defective=0;
   
   if (scoremat) {
 
@@ -133,29 +133,29 @@ string opts string* arg\n\
 
   }
    
-  unordered_map<clade_bitset, double > count_cache;
+  unordered_map<clade_bitset, __int128 > count_cache;
 
   string defective_str;
 
 
-  unordered_map< clade_bitset, unordered_map<double, double> > defective_cache;
+  //  unordered_map< clade_bitset, unordered_map<double, double> > defective_cache;
     
     
   
   count = cladev.back().optimal_subtree_count(*tps, count_cache);
   
   ntrees = count/(2 * cladev.back().size() - 3);    
-  cerr << "Found " << ntrees << " optimal trees" << endl;
+  cerr << "Found " << (double)ntrees << " optimal trees" << endl;
   sort(cladev.begin(), cladev.end(), [](const ScorableClade& a, const ScorableClade& b){ return a.size() > b.size(); });
 
     
   if (Options::get("listcladecounts")) {
     
     for (auto& c : cladev) {
-      if (defective)
-	cout << c.str() << "\t" << c.appearances_in_defective_trees(*tps, defective, defective_cache) << "\t" << count_cache[c.taxa] << "\t" <<count_cache[c.complement().taxa] << endl;
-      else
-	cout << c.str() << "\t" << c.appearances_in_optimal_trees(*tps, count_cache) << "\t" << count_cache[c.taxa] << "\t" <<count_cache[c.complement().taxa] << endl;
+      // if (defective)
+      // 	cout << c.str() << "\t" << c.appearances_in_defective_trees(*tps, defective, defective_cache) << "\t" << count_cache[c.taxa] << "\t" <<count_cache[c.complement().taxa] << endl;
+      // else
+      //      cout << c.str() << "\t" <<(c.appearances_in_optimal_trees(*tps, count_cache) << "\t" << count_cache[c.taxa] << "\t" <<count_cache[c.complement().taxa] << endl;
     }
   }
   
@@ -163,7 +163,7 @@ string opts string* arg\n\
   
   
   if (Options::get("consensus", &consensus_str)) {
-    double consensus = atof(&(consensus_str[0])) * ntrees;    
+    __int128 consensus = atof(&(consensus_str[0])) * ntrees;    
     vector<ScorableClade> consensusclades;
     consensusclades.push_back(cladev[0]);
     
@@ -173,7 +173,7 @@ string opts string* arg\n\
     
 
     for (auto& c : cladev) {
-
+      //      cout << "\t" << c.appearances_in_optimal_trees(*tps, count_cache) << "\t" << consensus << "\t" << c.appearances_in_optimal_trees(*tps, count_cache)  - consensus << endl << "\t" << count_cache[c.taxa] - consensus << "\t" << count_cache[c.complement().taxa] - consensus << endl;
       if ((c.appearances_in_optimal_trees(*tps, count_cache) >= consensus)) {
 	bool compat = true;
 	for (auto& cc : consensusclades) {
@@ -242,7 +242,7 @@ string opts string* arg\n\
     } else if (Options::get("consensus")) {
       outfile << consensus_tree << ';' << endl;
     } else if (Options::get("counttrees")) {
-      outfile << ntrees << endl;
+      outfile << (double)ntrees << endl;
     } else if (Options::get("listalltrees")) {
       unordered_map<clade_bitset, vector<string> > strcache;
       for (ScorableClade& c : cladev) {

@@ -2,7 +2,7 @@
 #define BRYANTSTEEL_TRIPARTITION_SCORER_HPP__
 
 #include "TripartitionScorer.hpp"
-#include "Logger.hpp"
+#include <util/Logger.hpp>
 
 
 class BryantSteelTripartitionScorer : public TripartitionScorer{

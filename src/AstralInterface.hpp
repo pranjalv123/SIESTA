@@ -1,7 +1,7 @@
 #ifndef ASTRAL_INTERFACE_HPP__
 #define ASTRAL_INTERFACE_HPP__
 
-#include "Logger.hpp"
+#include <util/Logger.hpp>
 #include <newick.hpp>
 #include <iostream>
 #include <fstream>

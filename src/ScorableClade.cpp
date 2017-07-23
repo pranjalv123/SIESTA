@@ -167,7 +167,7 @@ double ScorableClade::defective_subtree_count(TripartitionScorer& scorer, twod_m
 }
 
 
-double ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& cache) {
+__int128 ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordered_map<clade_bitset, __int128 >& cache) {
   
   if (cache.count(taxa)) {
     return cache[taxa];
@@ -181,7 +181,7 @@ double ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordere
   
   vector<pair<clade_bitset, clade_bitset> >& subclades_list = scorer.get_subclade_lists(taxa);
 
-  double count = 0;
+  __int128 count = 0;
   
   for (auto& subclades : subclades_list) {
 
@@ -198,7 +198,7 @@ double ScorableClade::optimal_subtree_count(TripartitionScorer& scorer, unordere
   return count;
 }
 
-double ScorableClade::appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, double >& count_cache) const { 
+__int128 ScorableClade::appearances_in_optimal_trees(TripartitionScorer& scorer, unordered_map<clade_bitset, __int128 >& count_cache) const { 
 
   return count_cache[taxa] * count_cache[complement().taxa];
 }
